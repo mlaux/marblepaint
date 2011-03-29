@@ -27,6 +27,7 @@ public class MarblePaint extends Activity {
         glSurface.setRenderer(glRenderer);
         
         setContentView(glSurface);
+        
     }
     
     public static final MarblePaint getContext() {
