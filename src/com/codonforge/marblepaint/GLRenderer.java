@@ -33,17 +33,16 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 		glColor4f(0.0f, 0.5f, 1.0f, 1.0f);
 
 		glPushMatrix();
-		// Move away from the origin
-		glRotatef(45.0f, 1.0f, 1.0f, 0);
-		glTranslatef(5.0f, -5.0f, -20.0f);
-		glPushMatrix();
-		// Create the light
-		glLightfv(GL_LIGHT0, GL_POSITION, lightPos);
-		glPopMatrix();
-		// Modify sphere updated position
-		glTranslatef(10.0f, translatey, 0.0f);
-		// Draw sphere
-		GLUT.glutSolidSphere(1.0f, 32, 32);
+			// Put the light at 0, 0, 0
+			glLightfv(GL_LIGHT0, GL_POSITION, lightPos);
+			
+			// Move away from the origin -- anything after this line will be translated
+			// Note that you could combine the next 2 lines like this:
+			// glTranslatef(0.0f, translatey, -20.0f);
+			glTranslatef(0.0f, 0.0f, -20.0f);
+			glTranslatef(0.0f, translatey, 0.0f);
+			// Draw sphere
+			GLUT.glutSolidSphere(1.0f, 32, 32);
 		glPopMatrix();
 
 		// Translate update
