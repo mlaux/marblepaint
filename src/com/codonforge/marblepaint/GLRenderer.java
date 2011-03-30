@@ -41,6 +41,7 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 			// glTranslatef(0.0f, translatey, -20.0f);
 			glTranslatef(0.0f, 0.0f, -20.0f);
 			glTranslatef(0.0f, translatey, 0.0f);
+			
 			// Draw sphere
 			GLUT.glutSolidSphere(1.0f, 32, 32);
 		glPopMatrix();
