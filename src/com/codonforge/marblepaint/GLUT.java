@@ -7,14 +7,13 @@ import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
-
 /**
- * Since Android doesn't contain the GLUT library, and GLUT has a great
- * function for drawing spheres, I ripped this out of a freely available GLUT
+ * Since Android doesn't contain the GLUT library, and GLUT has a great function
+ * for drawing spheres, I ripped this out of a freely available GLUT
  * implementation and ported it for Android.
  * 
  * @author Matt
- *
+ * 
  */
 public class GLUT {
 	private static FloatBuffer sphereVerts;
@@ -22,19 +21,20 @@ public class GLUT {
 
 	private static IntBuffer cubeVerts;
 	private static ByteBuffer cubeIndices;
-	
+
 	private static float lastRadius;
 	private static int lastSlices;
 	private static int lastStacks;
-	
+
 	public static void glutSolidSphere(float radius, int slices, int stacks) {
-		if (lastRadius != radius || lastSlices != slices || lastStacks != stacks) {
+		if (lastRadius != radius || lastSlices != slices
+				|| lastStacks != stacks) {
 			lastRadius = radius;
 			lastSlices = slices;
 			lastStacks = stacks;
 			plotSpherePoints(radius, stacks, slices);
 		}
-		
+
 		glEnableClientState(GL_VERTEX_ARRAY);
 		glEnableClientState(GL_NORMAL_ARRAY);
 
@@ -53,7 +53,7 @@ public class GLUT {
 	private static void plotSpherePoints(float radius, int stacks, int slices) {
 		sphereVerts = Calc.alloc(4 * 6 * stacks * (slices + 1));
 		sphereNorms = Calc.alloc(4 * 6 * stacks * (slices + 1));
-		
+
 		float stackstep = ((float) Math.PI) / stacks;
 		float slicestep = 2.0f * ((float) Math.PI) / slices;
 

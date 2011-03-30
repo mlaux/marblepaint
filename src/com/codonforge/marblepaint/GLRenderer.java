@@ -51,10 +51,10 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 		
 	}
 	
-	public void setMarblePosition(float x, float y, float z) {
-		marblex = x;
-		marbley = y;
-		marblez = z;
+	public void accelerate(float x, float y, float z) {
+		marblex += ((x + 0.15322891f) * .10f);//for calibration we can trade decimals for variables which change to current v values. just done for example.
+		marbley += y;
+		marblez += ((z - 9.883265f) * .10f);
 	}
 
 	public void onSurfaceChanged(GL10 gl, int width, int height) {
