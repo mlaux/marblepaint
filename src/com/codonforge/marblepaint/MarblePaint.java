@@ -21,6 +21,7 @@ public class MarblePaint extends Activity implements SensorEventListener {
 	private SensorManager mSensorManager;
 	private Sensor mAccelerometer;
 
+
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		context = this;
@@ -52,17 +53,17 @@ public class MarblePaint extends Activity implements SensorEventListener {
 		mSensorManager.unregisterListener(this);
 	}
 
-	public void onAccuracyChanged(Sensor sensor, int accuracy) {
-
-	}
-
 	public void onSensorChanged(SensorEvent event) {
 		float[] v = event.values;
 		overlayText.setText("x: " + v[0] + ", y: " + v[1] + ", z: " + v[2]);
-		glRenderer.accelerate(v[1], 0, v[2]);
+		glRenderer.accelerate(v[0], v[1], v[2]);
 	}
 
 	public static final MarblePaint getContext() {
 		return context;
+	}
+
+	public void onAccuracyChanged(Sensor arg0, int arg1) {
+		
 	}
 }
