@@ -17,17 +17,20 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 	private int width;
 	private int height;
 
-	private float translatey;
-
-	private float translateModifiery;
-
-	private boolean accelerate = true;
+	private float marblex;
+	private float marbley;
+	private float marblez;
 
 	public void onDrawFrame(GL10 gl) {
 		// Clear the screen
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		
 		glLoadIdentity();
-
+		GLU.gluLookAt(gl, 0, 25, 0, 0, 0, 0, 0, 0, -1);
+		
+		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+		GLUT.glutSolidSphere(0.1f, 16, 16);
+		
 		// Set a blueish color
 		// The parameters go R, G, B, A, with each being between 0 and 1
 		glColor4f(0.0f, 0.5f, 1.0f, 1.0f);
@@ -38,36 +41,20 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 			
 			// Move away from the origin -- anything after this line will be translated
 			// Note that you could combine the next 2 lines like this:
-			// glTranslatef(0.0f, translatey, -20.0f);
-			glTranslatef(0.0f, 0.0f, -20.0f);
-			glTranslatef(0.0f, translatey, 0.0f);
+			// glTranslatef(0.0f, marbley, -20.0f);
+			glTranslatef(marblex, marbley, marblez);
 			
 			// Draw sphere
 			GLUT.glutSolidSphere(1.0f, 32, 32);
 		glPopMatrix();
 
-		// Translate update
-		translatey = translatey + translateModifiery;
-		// Acceleration test
-		if (accelerate) {
-			translateModifiery += 0.01f;
-		} else {
-			translateModifiery -= 0.01f;
-		}
-		// Test for translate locations etc
-		if (translatey >= -6f) {
-			accelerate = false;
-		}
-		if (translatey <= -9f) {
-			accelerate = true;
-		}
-		// Keep acceleration low
-		if (translateModifiery >= 0.5f) {
-			translateModifiery = 0.5f;
-		}
-		if (translateModifiery <= -0.5f) {
-			translateModifiery = -0.5f;
-		}
+		
+	}
+	
+	public void setMarblePosition(float x, float y, float z) {
+		marblex = x;
+		marbley = y;
+		marblez = z;
 	}
 
 	public void onSurfaceChanged(GL10 gl, int width, int height) {
