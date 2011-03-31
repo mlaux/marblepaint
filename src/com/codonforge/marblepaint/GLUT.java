@@ -2,10 +2,7 @@ package com.codonforge.marblepaint;
 
 import static android.opengl.GLES10.*;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
 
 /**
  * Since Android doesn't contain the GLUT library, and GLUT has a great function
@@ -18,17 +15,13 @@ import java.nio.IntBuffer;
 public class GLUT {
 	private static FloatBuffer sphereVerts;
 	private static FloatBuffer sphereNorms;
-
-	private static IntBuffer cubeVerts;
-	private static ByteBuffer cubeIndices;
-
+	
 	private static float lastRadius;
 	private static int lastSlices;
 	private static int lastStacks;
 
 	public static void glutSolidSphere(float radius, int slices, int stacks) {
-		if (lastRadius != radius || lastSlices != slices
-				|| lastStacks != stacks) {
+		if (lastRadius != radius || lastSlices != slices || lastStacks != stacks) {
 			lastRadius = radius;
 			lastSlices = slices;
 			lastStacks = stacks;
@@ -51,8 +44,8 @@ public class GLUT {
 	}
 
 	private static void plotSpherePoints(float radius, int stacks, int slices) {
-		sphereVerts = Calc.alloc(4 * 6 * stacks * (slices + 1));
-		sphereNorms = Calc.alloc(4 * 6 * stacks * (slices + 1));
+		sphereVerts = Calc.alloc(6 * stacks * (slices + 1));
+		sphereNorms = Calc.alloc(6 * stacks * (slices + 1));
 
 		float stackstep = ((float) Math.PI) / stacks;
 		float slicestep = 2.0f * ((float) Math.PI) / slices;

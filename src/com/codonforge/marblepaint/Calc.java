@@ -3,6 +3,7 @@ package com.codonforge.marblepaint;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
+import java.util.List;
 
 /**
  * Some common stuff related to 3D math and memory allocation
@@ -57,6 +58,14 @@ public class Calc {
 	public static FloatBuffer wrapDirect(float... arr) {
 		FloatBuffer fb = alloc(arr.length);
 		fb.put(arr);
+		fb.flip();
+		return fb;
+	}
+	
+	public static FloatBuffer wrapDirect(List<Float> list) {
+		FloatBuffer fb = alloc(list.size());
+		for(int k = 0; k < list.size(); k++)
+			fb.put(list.get(k).floatValue());
 		fb.flip();
 		return fb;
 	}

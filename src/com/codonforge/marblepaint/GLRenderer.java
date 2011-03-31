@@ -2,6 +2,7 @@ package com.codonforge.marblepaint;
 
 import static android.opengl.GLES10.*;
 
+import java.io.IOException;
 import java.nio.FloatBuffer;
 
 import javax.microedition.khronos.egl.EGLConfig;
@@ -15,6 +16,8 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 
 	private int width;
 	private int height;
+	
+	private Object3D enclosure;
 
 	private float marblex;
 	private float marbley;
@@ -28,10 +31,11 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		glLoadIdentity();
-		GLU.gluLookAt(gl, 0, 25, 0, 0, 0, 0, 0, 0, -1);
-
-		// Set a blueish color
-		// The parameters go R, G, B, A, with each being between 0 and 1
+		GLU.gluLookAt(gl, 0, 25, 5, 0, 0, 0, 0, 0, -1);
+		
+		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+		enclosure.render();
+		
 		glColor4f(0.0f, 0.5f, 1.0f, 1.0f);
 
 		glPushMatrix();
@@ -43,8 +47,8 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 	}
 
 	public void accelerate(float x, float y, float z) {
-		xAccel += 1.8f * ((y + 0.0f) * .10f);
-		yAccel += 1.8f * ((x - 0.8f) * .10f);
+		xAccel = 1.5f * ((y + 0.0f) * .10f);
+		yAccel = 1.5f * ((x - 0.8f) * .10f);
 		
 		marblex += xAccel;
 		marblez += yAccel;
@@ -75,6 +79,8 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LEQUAL);
+		
+		glEnable(GL_NORMALIZE);
 
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -85,5 +91,12 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 		glEnable(GL_LIGHTING);
 		glEnable(GL_LIGHT0);
 		glEnable(GL_COLOR_MATERIAL);
+		
+		try {
+			enclosure = new Object3D(MarblePaint.getContext(), R.raw.box, -1);
+			enclosure.setScale(0.45f);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 }
