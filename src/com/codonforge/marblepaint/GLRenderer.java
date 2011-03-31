@@ -19,6 +19,9 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 	private float marblex;
 	private float marbley;
 	private float marblez;
+	
+	private float xAccel;
+	private float yAccel;
 
 	public void onDrawFrame(GL10 gl) {
 		// Clear the screen
@@ -40,12 +43,19 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 	}
 
 	public void accelerate(float x, float y, float z) {
-		marblex += 1.5 * ((y + 0.0f) * .10f);// for calibration we can trade
-		// decimals for variables which change to current v values. just done
-		// for example.
-		marblez += 1.5 * ((x - 0.0f) * .10f);
+		xAccel += 1.8f * ((y + 0.0f) * .10f);
+		yAccel += 1.8f * ((x - 0.8f) * .10f);
+		
+		marblex += xAccel;
+		marblez += yAccel;
 		
 		MarblePaint.getContext().setOverlayText(2, "Marble: [x: " + marblex + ", y: " + marbley + ", z: " + marblez + "]");
+	}
+	
+	public void checkLoc(GLSurfaceView view) {
+		if (marblex >= (view.getWidth() / 2) - 1) {
+
+		}
 	}
 
 	public void onSurfaceChanged(GL10 gl, int width, int height) {
