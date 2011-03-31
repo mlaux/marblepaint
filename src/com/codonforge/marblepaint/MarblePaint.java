@@ -17,7 +17,7 @@ public class MarblePaint extends Activity implements SensorEventListener {
 
 	private GLSurfaceView glSurface;
 	private GLRenderer glRenderer;
-	
+
 	private TextView overlayText1;
 	private TextView overlayText2;
 
@@ -27,13 +27,16 @@ public class MarblePaint extends Activity implements SensorEventListener {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		context = this;
-		
+
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		getWindow().setFlags(FLAG_FULLSCREEN, FLAG_FULLSCREEN);
-		getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+		getWindow().addFlags(
+				WindowManager.LayoutParams.FLAG_FULLSCREEN
+						| WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
 		sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-		accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+		accelerometer = sensorManager
+				.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
 		setContentView(R.layout.main);
 
@@ -45,18 +48,20 @@ public class MarblePaint extends Activity implements SensorEventListener {
 		overlayText1 = (TextView) findViewById(R.id.debugLine1);
 		overlayText2 = (TextView) findViewById(R.id.debugLine2);
 	}
-	
+
 	public void setOverlayText(int line, String s) {
-		if(line == 1)
+		if (line == 1)
 			overlayText1.setText(s);
-		else if(line == 2)
+		else if (line == 2)
 			overlayText2.setText(s);
-		else throw new IllegalArgumentException();
+		else
+			throw new IllegalArgumentException();
 	}
 
 	protected void onResume() {
 		super.onResume();
-		sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME);
+		sensorManager.registerListener(this, accelerometer,
+				SensorManager.SENSOR_DELAY_GAME);
 	}
 
 	protected void onPause() {
@@ -66,7 +71,8 @@ public class MarblePaint extends Activity implements SensorEventListener {
 
 	public void onSensorChanged(SensorEvent event) {
 		float[] v = event.values;
-		setOverlayText(1, "Accelerometer [x: " + v[0] + ", y: " + v[1] + ", z: " + v[2] + "]");
+		setOverlayText(1, "Accelerometer [x: " + v[0] + ", y: " + v[1]
+				+ ", z: " + v[2] + "]");
 		glRenderer.accelerate(v[0], v[1], v[2]);
 	}
 
@@ -75,6 +81,6 @@ public class MarblePaint extends Activity implements SensorEventListener {
 	}
 
 	public void onAccuracyChanged(Sensor arg0, int arg1) {
-		
+
 	}
 }

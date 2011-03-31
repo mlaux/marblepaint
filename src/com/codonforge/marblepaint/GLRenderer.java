@@ -50,17 +50,25 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 		xAccel = 1.5f * ((y + 0.0f) * .10f);
 		yAccel = 1.5f * ((x - 0.8f) * .10f);
 		
+		if (marblex > 14) {
+			xAccel = 0;
+		}
+		if (marblex < -14) {
+			xAccel = 0;
+		}
+		if (marblez > 7) {
+			yAccel = 0;
+		}
+		if (marblez < -7) {
+			yAccel = 0;
+		}
+		
 		marblex += xAccel;
 		marblez += yAccel;
 		
 		MarblePaint.getContext().setOverlayText(2, "Marble: [x: " + marblex + ", y: " + marbley + ", z: " + marblez + "]");
 	}
-	
-	public void checkLoc(GLSurfaceView view) {
-		if (marblex >= (view.getWidth() / 2) - 1) {
 
-		}
-	}
 
 	public void onSurfaceChanged(GL10 gl, int width, int height) {
 		this.width = width;
