@@ -16,11 +16,12 @@ public class MarblePaint extends Activity implements SensorEventListener {
 
 	private GLSurfaceView glSurface;
 	private GLRenderer glRenderer;
-	private TextView overlayText;
+	
+	private TextView overlayText1;
+	private TextView overlayText2;
 
-	private SensorManager mSensorManager;
-	private Sensor mAccelerometer;
-
+	private SensorManager sensorManager;
+	private Sensor accelerometer;
 
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -29,33 +30,41 @@ public class MarblePaint extends Activity implements SensorEventListener {
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		getWindow().setFlags(FLAG_FULLSCREEN, FLAG_FULLSCREEN);
 
-		mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-		mAccelerometer = mSensorManager
-				.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+		sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+		accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
 		setContentView(R.layout.main);
 
 		glRenderer = new GLRenderer();
-		glSurface = (GLSurfaceView) findViewById(R.id.surfaceView1);
+		glSurface = (GLSurfaceView) findViewById(R.id.glSurfaceView);
 		glSurface.setRenderer(glRenderer);
 
-		overlayText = (TextView) findViewById(R.id.textView1);
+		// If we ever need more, I'll convert them to be in an array
+		overlayText1 = (TextView) findViewById(R.id.debugLine1);
+		overlayText2 = (TextView) findViewById(R.id.debugLine2);
+	}
+	
+	public void setOverlayText(int line, String s) {
+		if(line == 1)
+			overlayText1.setText(s);
+		else if(line == 2)
+			overlayText2.setText(s);
+		else throw new IllegalArgumentException();
 	}
 
 	protected void onResume() {
 		super.onResume();
-		mSensorManager.registerListener(this, mAccelerometer,
-				SensorManager.SENSOR_DELAY_GAME);
+		sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME);
 	}
 
 	protected void onPause() {
 		super.onPause();
-		mSensorManager.unregisterListener(this);
+		sensorManager.unregisterListener(this);
 	}
 
 	public void onSensorChanged(SensorEvent event) {
 		float[] v = event.values;
-		overlayText.setText("x: " + v[0] + ", y: " + v[1] + ", z: " + v[2]);
+		setOverlayText(1, "Accelerometer [x: " + v[0] + ", y: " + v[1] + ", z: " + v[2] + "]");
 		glRenderer.accelerate(v[0], v[1], v[2]);
 	}
 
