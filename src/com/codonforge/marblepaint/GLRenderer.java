@@ -51,16 +51,16 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 		yAccel = 1.5f * ((x - 0.8f) * .10f);
 		
 		if (marblex > 14) {
-			xAccel = 0;
+			xAccel = -xAccel;
 		}
 		if (marblex < -14) {
-			xAccel = 0;
+			xAccel = -xAccel;
 		}
 		if (marblez > 7) {
-			yAccel = 0;
+			yAccel = -yAccel;
 		}
 		if (marblez < -7) {
-			yAccel = 0;
+			yAccel = -yAccel;
 		}
 		
 		marblex += xAccel;
