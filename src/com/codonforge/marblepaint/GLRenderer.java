@@ -31,10 +31,10 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 		float newx = marblex + xAccel;
 		float newy = marblez + yAccel;
 		
-		if(Math.abs(newx) > 14.0f)
-			xAccel *= -0.25f;
+		if(Math.abs(newx) > 13.5f)
+			xAccel *= -0.2f;
 		if(Math.abs(newy) > 7.0f)
-			yAccel *= -0.25f;
+			yAccel *= -0.2f; 
 		
 		marblex += xAccel;
 		marblez += yAccel;
@@ -57,8 +57,8 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 	}
 
 	public void accelerate(float x, float y, float z) {
-		xAccel += 0.025f * y;
-		yAccel += 0.025f * x;
+		xAccel += 0.02f * y;
+		yAccel += 0.02f * x;
 
 		MarblePaint.getContext().setOverlayText(2, "Marble: [x: " + marblex + ", y: " + marbley + ", z: " + marblez + "]");
 	}
