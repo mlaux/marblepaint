@@ -27,6 +27,18 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 
 	public void onDrawFrame(GL10 gl) {
 		// Clear the screen
+		
+		float newx = marblex + xAccel;
+		float newy = marblez + yAccel;
+		
+		if(Math.abs(newx) > 14.0f)
+			xAccel *= -0.25f;
+		if(Math.abs(newy) > 7.0f)
+			yAccel *= -0.25f;
+		
+		marblex += xAccel;
+		marblez += yAccel;
+		
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		glLoadIdentity();
@@ -45,23 +57,9 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 	}
 
 	public void accelerate(float x, float y, float z) {
-		xAccel += 0.05f * y;
-		yAccel += 0.05f * x;
-		
-		float newx = marblex + xAccel;
-		float newy = marblez + yAccel;
-		
-		if(Math.abs(newx) > 14.0f)
-			xAccel *= -0.5f;
-		if(Math.abs(newy) > 7.0f)
-			yAccel *= -0.5f;
-		
-		marblex += xAccel;
-		marblez += yAccel;
-		
-	//	xAccel *= 0.95f;
-	//	yAccel *= 0.95f;
-		
+		xAccel += 0.025f * y;
+		yAccel += 0.025f * x;
+
 		MarblePaint.getContext().setOverlayText(2, "Marble: [x: " + marblex + ", y: " + marbley + ", z: " + marblez + "]");
 	}
 
