@@ -7,5 +7,4 @@
 		<TextView android:text="TextView" android:layout_width="fill_parent" android:layout_height="fill_parent" android:id="@+id/debugLine1"></TextView>
 		<TextView android:text="TextView" android:layout_width="fill_parent" android:layout_height="fill_parent" android:id="@+id/debugLine2"></TextView>
 	</LinearLayout>
-
 </FrameLayout>

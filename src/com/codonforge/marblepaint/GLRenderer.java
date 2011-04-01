@@ -2,7 +2,6 @@ package com.codonforge.marblepaint;
 
 import static android.opengl.GLES10.*;
 
-import java.io.IOException;
 import java.nio.FloatBuffer;
 
 import javax.microedition.khronos.egl.EGLConfig;
@@ -20,7 +19,7 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 	private Object3D enclosure;
 
 	private float marblex;
-	private float marbley;
+	private float marbley = 1.0f;
 	private float marblez;
 	
 	private float xAccel;
@@ -40,31 +39,28 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 
 		glPushMatrix();
 			glTranslatef(marblex, marbley, marblez);
-			// Draw sphere
 			GLUT.glutSolidSphere(1.0f, 32, 32);
 		glPopMatrix();
 
 	}
 
 	public void accelerate(float x, float y, float z) {
-		xAccel = 1.5f * ((y + 0.0f) * .10f);
-		yAccel = 1.5f * ((x - 0.8f) * .10f);
+		xAccel += 0.05f * y;
+		yAccel += 0.05f * x;
 		
-		if (marblex > 14) {
-			xAccel = -xAccel;
-		}
-		if (marblex < -14) {
-			xAccel = -xAccel;
-		}
-		if (marblez > 7) {
-			yAccel = -yAccel;
-		}
-		if (marblez < -7) {
-			yAccel = -yAccel;
-		}
+		float newx = marblex + xAccel;
+		float newy = marblez + yAccel;
+		
+		if(Math.abs(newx) > 14.0f)
+			xAccel *= -0.5f;
+		if(Math.abs(newy) > 7.0f)
+			yAccel *= -0.5f;
 		
 		marblex += xAccel;
 		marblez += yAccel;
+		
+	//	xAccel *= 0.95f;
+	//	yAccel *= 0.95f;
 		
 		MarblePaint.getContext().setOverlayText(2, "Marble: [x: " + marblex + ", y: " + marbley + ", z: " + marblez + "]");
 	}
@@ -84,7 +80,7 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 
 	public void onSurfaceCreated(GL10 gl, EGLConfig config) {
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-
+		
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LEQUAL);
 		
