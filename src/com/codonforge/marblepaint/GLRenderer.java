@@ -18,6 +18,7 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 	private int height;
 
 	private Object3D enclosure;
+	private int splatter;
 
 	private float marblex;
 	private float marbley = 1.0f;
@@ -25,18 +26,10 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 
 	private float xAccel;
 	private float yAccel;
-
-	private float xBounceDecrease = 0.95f;
-	private float yBounceDecrease = 0.95f;
-
-	private boolean xSetZero = false;
-	private boolean ySetZero = false;
-
-	private boolean xAccelPositive = true;
-	private boolean yAccelPositive = true;
-
-	private boolean curAccelDirx = true; // True for positive false for negative
-	private boolean curAccelDiry = true;
+	
+	private float[] splatx = new float[256];
+	private float[] splaty = new float[256];
+	private int splatidx;
 
 	public void onDrawFrame(GL10 gl) {
 		// Clear the screen
@@ -46,42 +39,17 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 
 		if (Math.abs(newx) > 13.5f) {
 			xAccel *= -0.2f;
-			xAccel *= xBounceDecrease;
-			xBounceDecrease -= 0.05f;
-			curAccelDirx = xAccelPositive;
 		}
 		if (Math.abs(newy) > 7.0f) {
 			yAccel *= -0.2f;
-			yAccel *= yBounceDecrease;
-			yBounceDecrease -= 0.05f;
-			curAccelDiry = yAccelPositive;
 		}
 		
-		// Sets zero value once decrease gets below a point
-		if (xBounceDecrease < .5f)
-			xSetZero = true;
-		if (yBounceDecrease < .5f)
-			ySetZero = true;
-
-		// Resets values once acceleration inverts
-		if (curAccelDirx != xAccelPositive) {
-			xBounceDecrease = 0.95f;
-			xSetZero = false;
-		}
-		if (curAccelDiry != yAccelPositive) {
-			yBounceDecrease = 0.95f;
-			ySetZero = false;
-		}
-
-		if (xSetZero) {
-			xAccel = 0;
-		}
-		if (ySetZero) {
-			yAccel = 0;
-		}
-
 		marblex += xAccel;
 		marblez += yAccel;
+		
+		splatx[splatidx] = marblex;
+		splaty[splatidx] = marblez;
+		splatidx = (splatidx + 1) % 256;
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -98,28 +66,18 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 		GLUT.glutSolidSphere(1.0f, 32, 32);
 		glPopMatrix();
 
+		glDisable(GL_LIGHTING);
+		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+		for(int k = 0; k < 256; k++)
+			Rect.render(splatx[k] - 1, splaty[k] - 1, 2, 2, splatter);
+		glEnable(GL_LIGHTING);
 	}
 
 	public void accelerate(float x, float y, float z) {
 		xAccel += 0.02f * y;
 		yAccel += 0.02f * x;
 
-		if (x >= 0) {
-			xAccelPositive = true;
-		} else {
-			xAccelPositive = false;
-		}
-
-		if (y >= 0) {
-			yAccelPositive = true;
-		} else {
-			yAccelPositive = false;
-		}
-
-		MarblePaint.getContext().setOverlayText(
-				2,
-				"Marble: [x: " + marblex + ", y: " + marbley + ", z: "
-						+ marblez + "]");
+		MarblePaint.getContext().setOverlayText(2, "Marble: [x: " + marblex + ", y: " + marbley + ", z: " + marblez + "]");
 	}
 
 	public void onSurfaceChanged(GL10 gl, int width, int height) {
@@ -130,9 +88,16 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
 
-		GLU.gluPerspective(gl, 45.0f, (float) width / (float) height, 0.1f,
-				100.0f);
+		GLU.gluPerspective(gl, 45.0f, (float) width / (float) height, 0.1f, 100.0f);
 		glMatrixMode(GL_MODELVIEW);
+
+		try {
+			splatter = Texture.loadTexture(MarblePaint.getContext(), R.drawable.paint);
+			enclosure = new Object3D(MarblePaint.getContext(), R.raw.box, -1);
+			enclosure.setScale(0.45f);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	public void onSurfaceCreated(GL10 gl, EGLConfig config) {
@@ -152,12 +117,35 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 		glEnable(GL_LIGHTING);
 		glEnable(GL_LIGHT0);
 		glEnable(GL_COLOR_MATERIAL);
+	}
+	
+	/**
+	 * Enables orthographic (2d) projection
+	 */
+	private void orthoOn() {
+		glMatrixMode(GL_PROJECTION);
+		glPushMatrix();
+		glLoadIdentity();
+		glOrthof(0, width, height, 0, 1, -1);
 
-		try {
-			enclosure = new Object3D(MarblePaint.getContext(), R.raw.box, -1);
-			enclosure.setScale(0.45f);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		glMatrixMode(GL_MODELVIEW);
+		glPushMatrix();
+		glLoadIdentity();
+		
+		glDisable(GL_LIGHTING);
+		glDisable(GL_COLOR_MATERIAL);
+	}
+	
+	/**
+	 * Disables orthographic projection
+	 */
+	private void orthoOff() {
+		glMatrixMode(GL_PROJECTION);
+		glPopMatrix();
+		glMatrixMode(GL_MODELVIEW);
+		glPopMatrix();
+		
+		glEnable(GL_COLOR_MATERIAL);
+		glEnable(GL_LIGHTING);
 	}
 }
