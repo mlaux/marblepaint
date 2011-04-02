@@ -26,8 +26,9 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 
 	private float xAccel;
 	private float yAccel;
-	
+
 	private FloatBuffer linecoords = Calc.alloc(3 * 256);
+	private FloatBuffer lineTexCoords = Calc.alloc(2 * 256);
 
 	public void onDrawFrame(GL10 gl) {
 		// Clear the screen
@@ -41,12 +42,12 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 		if (Math.abs(newy) > 7.0f) {
 			yAccel *= -0.2f;
 		}
-		
+
 		marblex += xAccel;
 		marblez += yAccel;
 
 		push(marblex, 0.1f, marblez);
-		
+
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		glLoadIdentity();
@@ -64,19 +65,28 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 
 		drawTrail();
 	}
-	
+
 	private void drawTrail() {
 		int opos = linecoords.position();
 		linecoords.position(0);
-		
+
+		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+		glTexCoordPointer(2, GL_FLOAT, 0, lineTexCoords);
+
 		glDisable(GL_LIGHTING);
-		glColor4f(1.0f, 0.0f, 0.0f, 1.0f);
+		glColor4f(0.0f, 0.4f, 1.0f, 1.0f);
 		glEnableClientState(GL_VERTEX_ARRAY);
 		glVertexPointer(3, GL_FLOAT, 0, linecoords);
 		glDrawArrays(GL_LINE_STRIP, 0, opos / 3);
 		glDisableClientState(GL_VERTEX_ARRAY);
 		glEnable(GL_LIGHTING);
-		
+
+		glScalef(16, 1, 0);
+		glEnable(GL_TEXTURE_2D);
+		glBindTexture(GL_TEXTURE_2D, R.drawable.paint);
+
+		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+
 		linecoords.position(opos);
 	}
 
@@ -84,7 +94,7 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 	 * This is such a memory hog, we're going to have to do some debugging here
 	 */
 	private void push(float x, float y, float z) {
-		if(!linecoords.hasRemaining()) {
+		if (!linecoords.hasRemaining()) {
 			float[] f = new float[linecoords.position()];
 			linecoords.position(0);
 			linecoords.get(f);
@@ -94,13 +104,26 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 		linecoords.put(x);
 		linecoords.put(y);
 		linecoords.put(z);
+		
+		if(!lineTexCoords.hasRemaining()) {
+			float[] f = new float[lineTexCoords.position()];
+			lineTexCoords.position(0);
+			lineTexCoords.get(f);
+			lineTexCoords = Calc.alloc(lineTexCoords.capacity() * 2);
+			lineTexCoords.put(f);
+		}
+		lineTexCoords.put(x);
+		lineTexCoords.put(z);
 	}
 
 	public void accelerate(float x, float y, float z) {
 		xAccel += 0.02f * y;
 		yAccel += 0.02f * x;
 
-		MarblePaint.getContext().setOverlayText(2, "Marble: [x: " + marblex + ", y: " + marbley + ", z: " + marblez + "]");
+		MarblePaint.getContext().setOverlayText(
+				2,
+				"Marble: [x: " + marblex + ", y: " + marbley + ", z: "
+						+ marblez + "]");
 	}
 
 	public void onSurfaceChanged(GL10 gl, int width, int height) {
@@ -110,11 +133,13 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 		glViewport(0, 0, width, height);
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
-		GLU.gluPerspective(gl, 45.0f, (float) width / (float) height, 0.1f, 100.0f);
+		GLU.gluPerspective(gl, 45.0f, (float) width / (float) height, 0.1f,
+				100.0f);
 		glMatrixMode(GL_MODELVIEW);
 
 		try {
-			splatter = Texture.loadTexture(MarblePaint.getContext(), R.drawable.paint);
+			splatter = Texture.loadTexture(MarblePaint.getContext(),
+					R.drawable.paint);
 			enclosure = new Object3D(MarblePaint.getContext(), R.raw.box, -1);
 			enclosure.setScale(0.45f);
 		} catch (Exception e) {
@@ -139,11 +164,12 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 		glEnable(GL_LIGHTING);
 		glEnable(GL_LIGHT0);
 		glEnable(GL_COLOR_MATERIAL);
-		
+
 		glLineWidth(16.0f);
 		linecoords.put(new float[] { 0, 0.1f, 0 });
+		lineTexCoords.put(new float[] { 0, 0.1f, 0 });
 	}
-	
+
 	/**
 	 * Enables orthographic (2d) projection
 	 */
@@ -156,11 +182,11 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 		glMatrixMode(GL_MODELVIEW);
 		glPushMatrix();
 		glLoadIdentity();
-		
+
 		glDisable(GL_LIGHTING);
 		glDisable(GL_COLOR_MATERIAL);
 	}
-	
+
 	/**
 	 * Disables orthographic projection
 	 */
@@ -169,7 +195,7 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 		glPopMatrix();
 		glMatrixMode(GL_MODELVIEW);
 		glPopMatrix();
-		
+
 		glEnable(GL_COLOR_MATERIAL);
 		glEnable(GL_LIGHTING);
 	}
