@@ -27,9 +27,7 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 	private float xAccel;
 	private float yAccel;
 	
-	private float[] splatx = new float[256];
-	private float[] splaty = new float[256];
-	private int splatidx;
+	private FloatBuffer linecoords = Calc.alloc(3 * 256);
 
 	public void onDrawFrame(GL10 gl) {
 		// Clear the screen
@@ -46,11 +44,9 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 		
 		marblex += xAccel;
 		marblez += yAccel;
-		
-		splatx[splatidx] = marblex;
-		splaty[splatidx] = marblez;
-		splatidx = (splatidx + 1) % 256;
 
+		push(marblex, 0.1f, marblez);
+		
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		glLoadIdentity();
@@ -66,11 +62,38 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 		GLUT.glutSolidSphere(1.0f, 32, 32);
 		glPopMatrix();
 
+		drawTrail();
+	}
+	
+	private void drawTrail() {
+		int opos = linecoords.position();
+		linecoords.position(0);
+		
 		glDisable(GL_LIGHTING);
-		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-		for(int k = 0; k < 256; k++)
-			Rect.render(splatx[k] - 1, splaty[k] - 1, 2, 2, splatter);
+		glColor4f(1.0f, 0.0f, 0.0f, 1.0f);
+		glEnableClientState(GL_VERTEX_ARRAY);
+		glVertexPointer(3, GL_FLOAT, 0, linecoords);
+		glDrawArrays(GL_LINE_STRIP, 0, opos / 3);
+		glDisableClientState(GL_VERTEX_ARRAY);
 		glEnable(GL_LIGHTING);
+		
+		linecoords.position(opos);
+	}
+
+	/**
+	 * This is such a memory hog, we're going to have to do some debugging here
+	 */
+	private void push(float x, float y, float z) {
+		if(!linecoords.hasRemaining()) {
+			float[] f = new float[linecoords.position()];
+			linecoords.position(0);
+			linecoords.get(f);
+			linecoords = Calc.alloc(linecoords.capacity() * 2);
+			linecoords.put(f);
+		}
+		linecoords.put(x);
+		linecoords.put(y);
+		linecoords.put(z);
 	}
 
 	public void accelerate(float x, float y, float z) {
@@ -87,7 +110,6 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 		glViewport(0, 0, width, height);
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
-
 		GLU.gluPerspective(gl, 45.0f, (float) width / (float) height, 0.1f, 100.0f);
 		glMatrixMode(GL_MODELVIEW);
 
@@ -117,6 +139,9 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 		glEnable(GL_LIGHTING);
 		glEnable(GL_LIGHT0);
 		glEnable(GL_COLOR_MATERIAL);
+		
+		glLineWidth(16.0f);
+		linecoords.put(new float[] { 0, 0.1f, 0 });
 	}
 	
 	/**

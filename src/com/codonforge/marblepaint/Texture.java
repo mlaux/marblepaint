@@ -16,7 +16,24 @@ import android.opengl.GLUtils;
 public class Texture {
 	public static int loadTexture(Context ctx, int id) {
 		Resources res = ctx.getResources();
-		return loadTexture(BitmapFactory.decodeResource(res, id));
+		Bitmap bmp = BitmapFactory.decodeResource(res, id);
+		int w = bmp.getWidth(), h = bmp.getHeight();
+		if(w != h || (w & (w - 1)) != 0 || (h & (h - 1)) != 0) {
+			int k = nextPow2(w < h ? w : h);
+			bmp = Bitmap.createScaledBitmap(bmp, k, k, false);
+		}
+		return loadTexture(bmp);
+	}
+	
+	private static int nextPow2(int k) {
+		k -= 1;
+		k |= k >> 1;
+		k |= k >> 2;
+		k |= k >> 4;
+		k |= k >> 8;
+		k |= k >> 16;
+		k += 1;
+		return k;
 	}
 
 	public static int loadTexture(Bitmap bitmap) {
