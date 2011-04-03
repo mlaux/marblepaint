@@ -2,14 +2,14 @@
 <FrameLayout android:id="@+id/frameLayout1"
 	android:layout_width="fill_parent" android:layout_height="fill_parent"
 	xmlns:android="http://schemas.android.com/apk/res/android">
-	<LinearLayout android:id="@+id/controls" android:layout_width="fill_parent" android:layout_gravity="top" android:layout_height="wrap_content" android:orientation="horizontal">
-		<Button android:text="Red" android:id="@+id/buttonRed" android:layout_width="wrap_content" android:layout_height="20px"></Button>
-		<Button android:text="Blue" android:id="@+id/buttonBlue" android:layout_width="wrap_content" android:layout_height="20px"></Button>
-		<Button android:text="Green" android:id="@+id/buttonGreen" android:layout_width="wrap_content" android:layout_height="20px"></Button>
-	    <Button android:text="Yellow" android:id="@+id/buttonYellow" android:layout_width="wrap_content" android:layout_height="20px"></Button>
-	    <Button android:text="Orange" android:id="@+id/buttonOrange" android:layout_width="wrap_content" android:layout_height="20px"></Button>
-	    <Button android:text="Purple" android:id="@+id/buttonPurple" android:layout_width="wrap_content" android:layout_height="20px"></Button>
-	    <Button android:text="Black" android:id="@+id/buttonBlack" android:layout_width="wrap_content" android:layout_height="20px"></Button>
-	</LinearLayout>
 	<android.opengl.GLSurfaceView android:layout_width="fill_parent" android:layout_height="fill_parent" android:id="@+id/glSurfaceView"></android.opengl.GLSurfaceView>
+	<LinearLayout android:id="@+id/controls" android:layout_width="fill_parent" android:layout_gravity="top" android:layout_height="wrap_content" android:orientation="horizontal">
+		<Button android:text="Red" android:id="@+id/buttonRed" android:layout_width="wrap_content" android:layout_height="wrap_content"></Button>
+		<Button android:text="Blue" android:id="@+id/buttonBlue" android:layout_width="wrap_content" android:layout_height="wrap_content"></Button>
+		<Button android:text="Green" android:id="@+id/buttonGreen" android:layout_width="wrap_content" android:layout_height="wrap_content"></Button>
+	    <Button android:text="Yellow" android:id="@+id/buttonYellow" android:layout_width="wrap_content" android:layout_height="wrap_content"></Button>
+	    <Button android:text="Orange" android:id="@+id/buttonOrange" android:layout_width="wrap_content" android:layout_height="wrap_content"></Button>
+	    <Button android:text="Purple" android:id="@+id/buttonPurple" android:layout_width="wrap_content" android:layout_height="wrap_content"></Button>
+	    <Button android:text="Black" android:id="@+id/buttonBlack" android:layout_width="wrap_content" android:layout_height="wrap_content"></Button>
+	</LinearLayout>
 </FrameLayout>
