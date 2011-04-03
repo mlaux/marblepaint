@@ -9,17 +9,15 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
+import android.view.View;
 import android.view.Window;
-import android.widget.TextView;
+import android.widget.Button;
 
 public class MarblePaint extends Activity implements SensorEventListener {
 	private static MarblePaint context;
 
 	private GLSurfaceView glSurface;
 	private GLRenderer glRenderer;
-
-	private TextView overlayText1;
-	private TextView overlayText2;
 
 	private SensorManager sensorManager;
 	private Sensor accelerometer;
@@ -32,7 +30,8 @@ public class MarblePaint extends Activity implements SensorEventListener {
 		getWindow().addFlags(FLAG_FULLSCREEN | FLAG_KEEP_SCREEN_ON);
 
 		sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-		accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+		accelerometer = sensorManager
+				.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
 		setContentView(R.layout.main);
 
@@ -40,23 +39,29 @@ public class MarblePaint extends Activity implements SensorEventListener {
 		glSurface = (GLSurfaceView) findViewById(R.id.glSurfaceView);
 		glSurface.setRenderer(glRenderer);
 
-		// If we ever need more, I'll convert them to be in an array
-		overlayText1 = (TextView) findViewById(R.id.debugLine1);
-		overlayText2 = (TextView) findViewById(R.id.debugLine2);
-	}
+		// Set Button variables
+		Button red = (Button) findViewById(R.id.buttonRed);
+		Button blue = (Button) findViewById(R.id.buttonBlue);
+		Button green = (Button) findViewById(R.id.buttonGreen);
+		Button yellow = (Button) findViewById(R.id.buttonYellow);
+		Button orange = (Button) findViewById(R.id.buttonOrange);
+		Button purple = (Button) findViewById(R.id.buttonPurple);
+		Button black = (Button) findViewById(R.id.buttonBlack);
 
-	public void setOverlayText(int line, String s) {
-		if (line == 1)
-			overlayText1.setText(s);
-		else if (line == 2)
-			overlayText2.setText(s);
-		else
-			throw new IllegalArgumentException();
+		// Add button listeners
+		addColorListener(1.0f, 0.0f, 0.0f, red);
+		addColorListener(0.0f, 0.0f, 1.0f, blue);
+		addColorListener(0.0f, 1.0f, 0.0f, green);
+		addColorListener(1.0f, 1.0f, 0.0f, yellow);
+		addColorListener(1.0f, 0.5f, 0.0f, orange);
+		addColorListener(0.5f, 0.0f, 1.0f, purple);
+		addColorListener(0.0f, 0.0f, 0.0f, black);
 	}
 
 	protected void onResume() {
 		super.onResume();
-		sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME);
+		sensorManager.registerListener(this, accelerometer,
+				SensorManager.SENSOR_DELAY_GAME);
 	}
 
 	protected void onPause() {
@@ -66,7 +71,6 @@ public class MarblePaint extends Activity implements SensorEventListener {
 
 	public void onSensorChanged(SensorEvent event) {
 		float[] v = event.values;
-		setOverlayText(1, "Accelerometer [x: " + v[0] + ", y: " + v[1] + ", z: " + v[2] + "]");
 		glRenderer.accelerate(v[0], v[1], v[2]);
 	}
 
@@ -76,5 +80,13 @@ public class MarblePaint extends Activity implements SensorEventListener {
 
 	public void onAccuracyChanged(Sensor arg0, int arg1) {
 
+	}
+
+	private void addColorListener(final float r, final float g, final float b, Button button) {
+		button.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				glRenderer.setColorValue(r, g, b);
+			}
+		});
 	}
 }

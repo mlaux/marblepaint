@@ -31,6 +31,8 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 	private float yAccel;
 
 	private FloatBuffer linecoords = Calc.alloc(3 * 256);
+	
+	private float[] colorValue = { 0.0f, 0.0f, 0.0f };
 
 	public void onDrawFrame(GL10 gl) {
 		float newx = marblex + xAccel;
@@ -58,14 +60,14 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 		enclosure.render();
 
-		glColor4f(0.0f, 0.5f, 1.0f, 1.0f);
+		glColor4f(colorValue[0], colorValue[1], colorValue[2], 1.0f);
 
 		glPushMatrix();
 		glTranslatef(marblex, marbley, marblez);
 		GLUT.glutSolidSphere(1.0f, 32, 32);
 		glPopMatrix();
 
-		glColor4f(0.0f, 0.5f, 1.0f, 0.5f);
+		glColor4f(colorValue[0], colorValue[1], colorValue[2], 0.5f);
 		drawTrail();
 	}
 
@@ -107,8 +109,6 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 	public void accelerate(float x, float y, float z) {
 		xAccel += 0.02f * y;
 		yAccel += 0.02f * x;
-		
-		MarblePaint.getContext().setOverlayText(2, "Marble: [x: " + marblex + ", y: " + marbley + ", z: " + marblez + "]");
 	}
 
 	public void onSurfaceChanged(GL10 gl, int width, int height) {
@@ -177,5 +177,11 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 
 		glEnable(GL_COLOR_MATERIAL);
 		glEnable(GL_LIGHTING);
+	}
+	
+	public void setColorValue(float r, float g, float b) {
+		colorValue[0] = r;
+		colorValue[1] = g;
+		colorValue[2] = b;
 	}
 }
