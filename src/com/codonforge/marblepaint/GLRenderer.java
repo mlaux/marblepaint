@@ -62,13 +62,12 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 		enclosure.render();
 
 		glColor4f(colorValue[0], colorValue[1], colorValue[2], 1.0f);
-
+		drawTrail();
+		
 		glPushMatrix();
 		glTranslatef(marblex, marbley, marblez);
 		GLUT.glutSolidSphere(1.0f, 32, 32);
 		glPopMatrix();
-
-		drawTrail();
 	}
 
 	private void drawTrail() {
@@ -79,15 +78,18 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 		linecolors.position(0);
 
 		glDisable(GL_LIGHTING);
+		glDisable(GL_DEPTH_TEST);
 		
 		glEnableClientState(GL_VERTEX_ARRAY);
 		glEnableClientState(GL_COLOR_ARRAY);
 		glVertexPointer(3, GL_FLOAT, 0, linecoords);
 		glColorPointer(4, GL_FLOAT, 0, linecolors);
+		glDrawArrays(GL_POINTS, 0, nv / 3);
 		glDrawArrays(GL_LINE_STRIP, 0, nv / 3);
 		glDisableClientState(GL_COLOR_ARRAY);
 		glDisableClientState(GL_VERTEX_ARRAY);
 		
+		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_LIGHTING);
 		
 		// Put the buffers back so we can continue putting stuff in them
@@ -110,7 +112,7 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 		linecolors.put(colorValue[0]);
 		linecolors.put(colorValue[1]);
 		linecolors.put(colorValue[2]);
-		linecolors.put(0.5f);
+		linecolors.put(1.0f);
 		
 		lastStoredX = x;
 		lastStoredZ = z;
@@ -165,9 +167,10 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 		glEnable(GL_LIGHT0);
 		glEnable(GL_COLOR_MATERIAL);
 		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+		glPointSize(6.0f);
 		glLineWidth(8.0f);
 		linecoords.put(new float[] { 0, 0.1f, 0 });
-		linecolors.put(new float[] { 0.0f, 0.0f, 0.0f, 0.5f });
+		linecolors.put(new float[] { 0.0f, 0.0f, 0.0f, 1.0f });
 	}
 
 	/**
