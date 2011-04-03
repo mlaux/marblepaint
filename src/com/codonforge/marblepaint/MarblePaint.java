@@ -67,9 +67,15 @@ public class MarblePaint extends Activity implements SensorEventListener {
 		
 		// Size buttons
 		Button sizeInc = (Button) findViewById(R.id.buttonSizeInc);
-		clear.setOnClickListener(new View.OnClickListener() {
+		sizeInc.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				glRenderer.increaseSize();
+			}
+		});
+		Button sizeDec = (Button) findViewById(R.id.buttonSizeDec);
+		sizeDec.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				glRenderer.decreaseSize();
 			}
 		});
 	}

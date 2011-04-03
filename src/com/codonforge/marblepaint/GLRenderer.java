@@ -71,6 +71,9 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 		glTranslatef(marblex, marbley, marblez);
 		GLUT.glutSolidSphere(1.0f, 32, 32);
 		glPopMatrix();
+		
+		glPointSize(pointsize);
+		glLineWidth(linewidth);
 	}
 
 	private void drawTrail() {
@@ -171,8 +174,6 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 		glEnable(GL_LIGHT0);
 		glEnable(GL_COLOR_MATERIAL);
 		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-		glPointSize(pointsize);
-		glLineWidth(linewidth);
 		linecoords.put(new float[] { 0, 0.1f, 0 });
 		linecolors.put(new float[] { 0.0f, 0.0f, 0.0f, 1.0f });
 	}
