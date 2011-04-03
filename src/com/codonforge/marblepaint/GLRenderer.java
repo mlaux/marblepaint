@@ -31,7 +31,7 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 	private float yAccel;
 
 	private FloatBuffer linecoords = Calc.alloc(3 * 256);
-	private FloatBuffer linecolors = Calc.alloc(3 * 256);
+	private FloatBuffer linecolors = Calc.alloc(4 * 256);
 	
 	private float[] colorValue = { 0.0f, 0.0f, 0.0f };
 
