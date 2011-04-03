@@ -23,16 +23,19 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 	private float marblex;
 	private float marbley = 1.0f;
 	private float marblez;
-	
+
 	private float lastStoredX;
 	private float lastStoredZ;
 
 	private float xAccel;
 	private float yAccel;
 
+	private float linewidth = 4.0f;
+	private float pointsize = 2.0f;
+
 	private FloatBuffer linecoords = Calc.alloc(3 * 256);
 	private FloatBuffer linecolors = Calc.alloc(4 * 256);
-	
+
 	private float[] colorValue = { 0.0f, 0.0f, 0.0f };
 
 	public void onDrawFrame(GL10 gl) {
@@ -48,13 +51,13 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 
 		marblex += xAccel;
 		marblez += yAccel;
-		
-		if(Calc.distanceSquared(lastStoredX, lastStoredZ, marblex, marblez) > 1.0f)
+
+		if (Calc.distanceSquared(lastStoredX, lastStoredZ, marblex, marblez) > 1.0f)
 			push(marblex, 0.1f, marblez);
 
 		// Clear the screen
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		
+
 		glLoadIdentity();
 		GLU.gluLookAt(gl, 0, 25, 5, 0, 0, 0, 0, 1, 0);
 
@@ -63,7 +66,7 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 
 		glColor4f(colorValue[0], colorValue[1], colorValue[2], 1.0f);
 		drawTrail();
-		
+
 		glPushMatrix();
 		glTranslatef(marblex, marbley, marblez);
 		GLUT.glutSolidSphere(1.0f, 32, 32);
@@ -79,7 +82,7 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 
 		glDisable(GL_LIGHTING);
 		glDisable(GL_DEPTH_TEST);
-		
+
 		glEnableClientState(GL_VERTEX_ARRAY);
 		glEnableClientState(GL_COLOR_ARRAY);
 		glVertexPointer(3, GL_FLOAT, 0, linecoords);
@@ -88,10 +91,10 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 		glDrawArrays(GL_LINE_STRIP, 0, nv / 3);
 		glDisableClientState(GL_COLOR_ARRAY);
 		glDisableClientState(GL_VERTEX_ARRAY);
-		
+
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_LIGHTING);
-		
+
 		// Put the buffers back so we can continue putting stuff in them
 		linecoords.position(nv);
 		linecolors.position(nc);
@@ -103,9 +106,9 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 	private void push(float x, float y, float z) {
 		if (!linecoords.hasRemaining())
 			linecoords = resize(linecoords);
-		if(!linecolors.hasRemaining())
+		if (!linecolors.hasRemaining())
 			linecolors = resize(linecolors);
-		
+
 		linecoords.put(x);
 		linecoords.put(y);
 		linecoords.put(z);
@@ -113,11 +116,11 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 		linecolors.put(colorValue[1]);
 		linecolors.put(colorValue[2]);
 		linecolors.put(1.0f);
-		
+
 		lastStoredX = x;
 		lastStoredZ = z;
 	}
-	
+
 	private FloatBuffer resize(FloatBuffer fb) {
 		Log.i("", " ###### Resizing buffer " + fb + " ###### ");
 		float[] f = new float[fb.position()];
@@ -140,7 +143,8 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 		glViewport(0, 0, width, height);
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
-		GLU.gluPerspective(gl, 45.0f, (float) width / (float) height, 0.1f, 100.0f);
+		GLU.gluPerspective(gl, 45.0f, (float) width / (float) height, 0.1f,
+				100.0f);
 		glMatrixMode(GL_MODELVIEW);
 
 		try {
@@ -154,7 +158,7 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 	public void onSurfaceCreated(GL10 gl, EGLConfig config) {
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LEQUAL);
-		
+
 		glEnable(GL_NORMALIZE);
 
 		glEnable(GL_BLEND);
@@ -167,8 +171,8 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 		glEnable(GL_LIGHT0);
 		glEnable(GL_COLOR_MATERIAL);
 		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-		glPointSize(6.0f);
-		glLineWidth(8.0f);
+		glPointSize(pointsize);
+		glLineWidth(linewidth);
 		linecoords.put(new float[] { 0, 0.1f, 0 });
 		linecolors.put(new float[] { 0.0f, 0.0f, 0.0f, 1.0f });
 	}
@@ -202,15 +206,29 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 		glEnable(GL_COLOR_MATERIAL);
 		glEnable(GL_LIGHTING);
 	}
-	
+
 	public void setColorValue(float r, float g, float b) {
 		colorValue[0] = r;
 		colorValue[1] = g;
 		colorValue[2] = b;
 	}
-	
+
 	public void resetLines() {
 		linecoords.position(0);
 		linecolors.position(0);
+	}
+
+	public void increaseSize() {
+		if (linewidth < 10.0f) {
+			linewidth += 1.0f;
+			pointsize += 1.0f;
+		}
+	}
+	
+	public void decreaseSize() {
+		if (linewidth > 2.0f) {
+			linewidth -= 1.0f;
+			pointsize -= 1.0f;
+		}
 	}
 }
