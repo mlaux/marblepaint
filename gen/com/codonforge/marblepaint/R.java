@@ -17,6 +17,7 @@ public final class R {
     public static final class id {
         public static final int buttonBlack=0x7f060009;
         public static final int buttonBlue=0x7f060004;
+        public static final int buttonClear=0x7f06000a;
         public static final int buttonGreen=0x7f060005;
         public static final int buttonOrange=0x7f060007;
         public static final int buttonPurple=0x7f060008;

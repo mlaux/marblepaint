@@ -205,4 +205,9 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 		colorValue[1] = g;
 		colorValue[2] = b;
 	}
+	
+	public void resetLines() {
+		linecoords.position(0);
+		linecolors.position(0);
+	}
 }

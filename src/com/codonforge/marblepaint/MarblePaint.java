@@ -39,7 +39,7 @@ public class MarblePaint extends Activity implements SensorEventListener {
 		glSurface = (GLSurfaceView) findViewById(R.id.glSurfaceView);
 		glSurface.setRenderer(glRenderer);
 
-		// Set Button variables
+		// Set color button variables
 		Button red = (Button) findViewById(R.id.buttonRed);
 		Button blue = (Button) findViewById(R.id.buttonBlue);
 		Button green = (Button) findViewById(R.id.buttonGreen);
@@ -48,7 +48,7 @@ public class MarblePaint extends Activity implements SensorEventListener {
 		Button purple = (Button) findViewById(R.id.buttonPurple);
 		Button black = (Button) findViewById(R.id.buttonBlack);
 
-		// Add button listeners
+		// Add color button listeners
 		addColorListener(1.0f, 0.0f, 0.0f, red);
 		addColorListener(0.0f, 0.0f, 1.0f, blue);
 		addColorListener(0.0f, 1.0f, 0.0f, green);
@@ -56,6 +56,14 @@ public class MarblePaint extends Activity implements SensorEventListener {
 		addColorListener(1.0f, 0.5f, 0.0f, orange);
 		addColorListener(0.5f, 0.0f, 1.0f, purple);
 		addColorListener(0.0f, 0.0f, 0.0f, black);
+		
+		// Clear button
+		Button clear = (Button) findViewById(R.id.buttonClear);
+		clear.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				glRenderer.resetLines();
+			}
+		});
 	}
 
 	protected void onResume() {
