@@ -31,6 +31,7 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 	private float yAccel;
 
 	private FloatBuffer linecoords = Calc.alloc(3 * 256);
+	private FloatBuffer linecolors = Calc.alloc(3 * 256);
 	
 	private float[] colorValue = { 0.0f, 0.0f, 0.0f };
 
@@ -55,7 +56,7 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
 		glLoadIdentity();
-		GLU.gluLookAt(gl, 0, 25, 5, 0, 0, 0, 0, 0, -1);
+		GLU.gluLookAt(gl, 0, 25, 5, 0, 0, 0, 0, 1, 0);
 
 		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 		enclosure.render();
@@ -67,43 +68,61 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 		GLUT.glutSolidSphere(1.0f, 32, 32);
 		glPopMatrix();
 
-		glColor4f(colorValue[0], colorValue[1], colorValue[2], 0.5f);
 		drawTrail();
 	}
 
 	private void drawTrail() {
-		int opos = linecoords.position();
+		// Mark the current place in the buffer so we can reset it
+		int nv = linecoords.position(), nc = linecolors.position();
+		// Rewind the buffers to the beginning for OpenGL
 		linecoords.position(0);
+		linecolors.position(0);
 
 		glDisable(GL_LIGHTING);
 		
 		glEnableClientState(GL_VERTEX_ARRAY);
+		glEnableClientState(GL_COLOR_ARRAY);
 		glVertexPointer(3, GL_FLOAT, 0, linecoords);
-		glDrawArrays(GL_LINE_STRIP, 0, opos / 3);
+		glColorPointer(4, GL_FLOAT, 0, linecolors);
+		glDrawArrays(GL_LINE_STRIP, 0, nv / 3);
+		glDisableClientState(GL_COLOR_ARRAY);
 		glDisableClientState(GL_VERTEX_ARRAY);
+		
 		glEnable(GL_LIGHTING);
 		
-		linecoords.position(opos);
+		// Put the buffers back so we can continue putting stuff in them
+		linecoords.position(nv);
+		linecolors.position(nc);
 	}
 
 	/**
 	 * This is such a memory hog, we're going to have to do some debugging here
 	 */
 	private void push(float x, float y, float z) {
-		if (!linecoords.hasRemaining()) {
-			Log.i("", " ###### Resizing buffer ###### ");
-			float[] f = new float[linecoords.position()];
-			linecoords.position(0);
-			linecoords.get(f);
-			linecoords = Calc.alloc(linecoords.capacity() * 2);
-			linecoords.put(f);
-		}
+		if (!linecoords.hasRemaining())
+			resize(linecoords);
+		if(!linecolors.hasRemaining())
+			resize(linecolors);
+		
 		linecoords.put(x);
 		linecoords.put(y);
 		linecoords.put(z);
+		linecolors.put(colorValue[0]);
+		linecolors.put(colorValue[1]);
+		linecolors.put(colorValue[2]);
+		linecolors.put(0.5f);
 		
 		lastStoredX = x;
 		lastStoredZ = z;
+	}
+	
+	private void resize(FloatBuffer fb) {
+		Log.i("", " ###### Resizing buffer " + fb + " ###### ");
+		float[] f = new float[fb.position()];
+		fb.position(0);
+		fb.get(f);
+		fb = Calc.alloc(fb.capacity() * 2);
+		fb.put(f);
 	}
 
 	public void accelerate(float x, float y, float z) {
@@ -132,7 +151,7 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 	public void onSurfaceCreated(GL10 gl, EGLConfig config) {
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LEQUAL);
-
+		
 		glEnable(GL_NORMALIZE);
 
 		glEnable(GL_BLEND);
@@ -145,7 +164,7 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 		glEnable(GL_LIGHT0);
 		glEnable(GL_COLOR_MATERIAL);
 		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-		glLineWidth(4.0f);
+		glLineWidth(8.0f);
 		linecoords.put(new float[] { 0, 0.1f, 0 });
 	}
 
