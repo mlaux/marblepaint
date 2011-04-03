@@ -167,6 +167,7 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 		glLineWidth(8.0f);
 		linecoords.put(new float[] { 0, 0.1f, 0 });
+		linecolors.put(new float[] { 0.0f, 0.0f, 0.0f, 0.5f });
 	}
 
 	/**
