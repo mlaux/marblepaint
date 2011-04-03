@@ -9,6 +9,7 @@ import javax.microedition.khronos.opengles.GL10;
 
 import android.opengl.GLSurfaceView;
 import android.opengl.GLU;
+import android.util.Log;
 
 public class GLRenderer implements GLSurfaceView.Renderer {
 	private static final FloatBuffer lightPos = Calc.wrapDirect(0.0f, 0.0f,
@@ -18,21 +19,20 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 	private int height;
 
 	private Object3D enclosure;
-	private int splatter;
 
 	private float marblex;
 	private float marbley = 1.0f;
 	private float marblez;
+	
+	private float lastStoredX;
+	private float lastStoredZ;
 
 	private float xAccel;
 	private float yAccel;
 
 	private FloatBuffer linecoords = Calc.alloc(3 * 256);
-	private FloatBuffer lineTexCoords = Calc.alloc(2 * 256);
 
 	public void onDrawFrame(GL10 gl) {
-		// Clear the screen
-
 		float newx = marblex + xAccel;
 		float newy = marblez + yAccel;
 
@@ -45,11 +45,13 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 
 		marblex += xAccel;
 		marblez += yAccel;
+		
+		if(Calc.distanceSquared(lastStoredX, lastStoredZ, marblex, marblez) > 1.0f)
+			push(marblex, 0.1f, marblez);
 
-		push(marblex, 0.1f, marblez);
-
+		// Clear the screen
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+		
 		glLoadIdentity();
 		GLU.gluLookAt(gl, 0, 25, 5, 0, 0, 0, 0, 0, -1);
 
@@ -63,6 +65,7 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 		GLUT.glutSolidSphere(1.0f, 32, 32);
 		glPopMatrix();
 
+		glColor4f(0.0f, 0.5f, 1.0f, 0.5f);
 		drawTrail();
 	}
 
@@ -70,23 +73,14 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 		int opos = linecoords.position();
 		linecoords.position(0);
 
-		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-		glTexCoordPointer(2, GL_FLOAT, 0, lineTexCoords);
-
 		glDisable(GL_LIGHTING);
-		glColor4f(0.0f, 0.4f, 1.0f, 1.0f);
+		
 		glEnableClientState(GL_VERTEX_ARRAY);
 		glVertexPointer(3, GL_FLOAT, 0, linecoords);
 		glDrawArrays(GL_LINE_STRIP, 0, opos / 3);
 		glDisableClientState(GL_VERTEX_ARRAY);
 		glEnable(GL_LIGHTING);
-
-		glScalef(16, 1, 0);
-		glEnable(GL_TEXTURE_2D);
-		glBindTexture(GL_TEXTURE_2D, R.drawable.paint);
-
-		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-
+		
 		linecoords.position(opos);
 	}
 
@@ -95,6 +89,7 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 	 */
 	private void push(float x, float y, float z) {
 		if (!linecoords.hasRemaining()) {
+			Log.i("", " ###### Resizing buffer ###### ");
 			float[] f = new float[linecoords.position()];
 			linecoords.position(0);
 			linecoords.get(f);
@@ -105,25 +100,15 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 		linecoords.put(y);
 		linecoords.put(z);
 		
-		if(!lineTexCoords.hasRemaining()) {
-			float[] f = new float[lineTexCoords.position()];
-			lineTexCoords.position(0);
-			lineTexCoords.get(f);
-			lineTexCoords = Calc.alloc(lineTexCoords.capacity() * 2);
-			lineTexCoords.put(f);
-		}
-		lineTexCoords.put(x);
-		lineTexCoords.put(z);
+		lastStoredX = x;
+		lastStoredZ = z;
 	}
 
 	public void accelerate(float x, float y, float z) {
 		xAccel += 0.02f * y;
 		yAccel += 0.02f * x;
-
-		MarblePaint.getContext().setOverlayText(
-				2,
-				"Marble: [x: " + marblex + ", y: " + marbley + ", z: "
-						+ marblez + "]");
+		
+		MarblePaint.getContext().setOverlayText(2, "Marble: [x: " + marblex + ", y: " + marbley + ", z: " + marblez + "]");
 	}
 
 	public void onSurfaceChanged(GL10 gl, int width, int height) {
@@ -133,13 +118,10 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 		glViewport(0, 0, width, height);
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
-		GLU.gluPerspective(gl, 45.0f, (float) width / (float) height, 0.1f,
-				100.0f);
+		GLU.gluPerspective(gl, 45.0f, (float) width / (float) height, 0.1f, 100.0f);
 		glMatrixMode(GL_MODELVIEW);
 
 		try {
-			splatter = Texture.loadTexture(MarblePaint.getContext(),
-					R.drawable.paint);
 			enclosure = new Object3D(MarblePaint.getContext(), R.raw.box, -1);
 			enclosure.setScale(0.45f);
 		} catch (Exception e) {
@@ -148,8 +130,6 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 	}
 
 	public void onSurfaceCreated(GL10 gl, EGLConfig config) {
-		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LEQUAL);
 
@@ -164,10 +144,9 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 		glEnable(GL_LIGHTING);
 		glEnable(GL_LIGHT0);
 		glEnable(GL_COLOR_MATERIAL);
-
-		glLineWidth(16.0f);
+		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+		glLineWidth(4.0f);
 		linecoords.put(new float[] { 0, 0.1f, 0 });
-		lineTexCoords.put(new float[] { 0, 0.1f, 0 });
 	}
 
 	/**

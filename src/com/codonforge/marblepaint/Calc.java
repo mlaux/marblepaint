@@ -51,6 +51,15 @@ public class Calc {
 		float dx = x2 - x1, dy = y2 - y1, dz = z2 - z1;
 		return (float) Math.sqrt((dx * dx) + (dy * dy) + (dz * dz));
 	}
+	
+	public static float distance(float x1, float y1, float x2, float y2) {
+		return (float) Math.sqrt(distanceSquared(x1, y1, x2, y2));
+	}
+	
+	public static float distanceSquared(float x1, float y1, float x2, float y2) {
+		float dx = x2 - x1, dy = y2 - y1;
+		return (dx * dx) + (dy * dy);
+	}
 
 	/**
 	 * Wraps the specified float[] in a native FloatBuffer.
