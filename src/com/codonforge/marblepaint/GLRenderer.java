@@ -100,9 +100,9 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 	 */
 	private void push(float x, float y, float z) {
 		if (!linecoords.hasRemaining())
-			resize(linecoords);
+			linecoords = resize(linecoords);
 		if(!linecolors.hasRemaining())
-			resize(linecolors);
+			linecolors = resize(linecolors);
 		
 		linecoords.put(x);
 		linecoords.put(y);
@@ -116,13 +116,14 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 		lastStoredZ = z;
 	}
 	
-	private void resize(FloatBuffer fb) {
+	private FloatBuffer resize(FloatBuffer fb) {
 		Log.i("", " ###### Resizing buffer " + fb + " ###### ");
 		float[] f = new float[fb.position()];
 		fb.position(0);
 		fb.get(f);
 		fb = Calc.alloc(fb.capacity() * 2);
 		fb.put(f);
+		return fb;
 	}
 
 	public void accelerate(float x, float y, float z) {
