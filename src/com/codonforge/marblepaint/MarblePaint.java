@@ -38,7 +38,7 @@ public class MarblePaint extends Activity implements SensorEventListener {
 		glRenderer = new GLRenderer();
 		glSurface = (GLSurfaceView) findViewById(R.id.glSurfaceView);
 		glSurface.setRenderer(glRenderer);
-
+		
 		// Set color button variables
 		Button red = (Button) findViewById(R.id.buttonRed);
 		Button blue = (Button) findViewById(R.id.buttonBlue);

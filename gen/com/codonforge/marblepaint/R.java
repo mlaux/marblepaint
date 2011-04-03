@@ -22,6 +22,8 @@ public final class R {
         public static final int buttonOrange=0x7f060007;
         public static final int buttonPurple=0x7f060008;
         public static final int buttonRed=0x7f060003;
+        public static final int buttonSizeDec=0x7f06000c;
+        public static final int buttonSizeInc=0x7f06000b;
         public static final int buttonYellow=0x7f060006;
         public static final int controls=0x7f060002;
         public static final int frameLayout1=0x7f060000;

@@ -12,8 +12,7 @@ import android.opengl.GLU;
 import android.util.Log;
 
 public class GLRenderer implements GLSurfaceView.Renderer {
-	private static final FloatBuffer lightPos = Calc.wrapDirect(0.0f, 0.0f,
-			0.0f, 1.0f);
+	private static final FloatBuffer lightPos = Calc.wrapDirect(0.0f, 0.0f, 0.0f, 1.0f);
 
 	private int width;
 	private int height;
@@ -31,14 +30,27 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 	private float yAccel;
 
 	private float linewidth = 4.0f;
-	private float pointsize = 2.0f;
 
 	private FloatBuffer linecoords = Calc.alloc(3 * 256);
 	private FloatBuffer linecolors = Calc.alloc(4 * 256);
+	private FloatBuffer linewidths = Calc.alloc(1 * 256);
 
 	private float[] colorValue = { 0.0f, 0.0f, 0.0f };
+	private transient boolean needClear;
 
 	public void onDrawFrame(GL10 gl) {
+		// Clear the screen
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		glLoadIdentity();
+		GLU.gluLookAt(gl, 0, 25, 5, 0, 0, 0, 0, 1, 0);
+
+		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+		enclosure.render();
+
+		glColor4f(colorValue[0], colorValue[1], colorValue[2], 1.0f);
+		drawTrail();
+
 		float newx = marblex + xAccel;
 		float newy = marblez + yAccel;
 
@@ -55,25 +67,17 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 		if (Calc.distanceSquared(lastStoredX, lastStoredZ, marblex, marblez) > 1.0f)
 			push(marblex, 0.1f, marblez);
 
-		// Clear the screen
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		glLoadIdentity();
-		GLU.gluLookAt(gl, 0, 25, 5, 0, 0, 0, 0, 1, 0);
-
-		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-		enclosure.render();
-
-		glColor4f(colorValue[0], colorValue[1], colorValue[2], 1.0f);
-		drawTrail();
-
 		glPushMatrix();
-		glTranslatef(marblex, marbley, marblez);
-		GLUT.glutSolidSphere(1.0f, 32, 32);
+			glTranslatef(marblex, marbley, marblez);
+			GLUT.glutSolidSphere(1.0f, 32, 32);
 		glPopMatrix();
 		
-		glPointSize(pointsize);
-		glLineWidth(linewidth);
+		if(needClear) {
+			linecoords.position(0);
+			linecolors.position(0);
+			linewidths.position(0);
+			needClear = false;
+		}
 	}
 
 	private void drawTrail() {
@@ -90,8 +94,22 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 		glEnableClientState(GL_COLOR_ARRAY);
 		glVertexPointer(3, GL_FLOAT, 0, linecoords);
 		glColorPointer(4, GL_FLOAT, 0, linecolors);
-		glDrawArrays(GL_POINTS, 0, nv / 3);
-		glDrawArrays(GL_LINE_STRIP, 0, nv / 3);
+		
+		// This really sacrifices a lot of our speed because instead of 
+		// drawing the whole line strip in one call, we have to specify the
+		// width of each segment and then draw it, which requires /n/ function
+		// calls, where /n/ is the number of line segments in the trail.
+		// So, we should probably optimize this.
+		
+		int n = nv / 3;
+		for(int k = 1; k < n; k++) {
+			float w = linewidths.get(k);
+			glLineWidth(w);
+			glPointSize(w - 2.0f);
+			glDrawArrays(GL_POINTS, k, 1);
+			glDrawArrays(GL_LINE_STRIP, k - 1, 2);
+		}
+		
 		glDisableClientState(GL_COLOR_ARRAY);
 		glDisableClientState(GL_VERTEX_ARRAY);
 
@@ -111,6 +129,8 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 			linecoords = resize(linecoords);
 		if (!linecolors.hasRemaining())
 			linecolors = resize(linecolors);
+		if (!linewidths.hasRemaining())
+			linewidths = resize(linewidths);
 
 		linecoords.put(x);
 		linecoords.put(y);
@@ -119,6 +139,8 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 		linecolors.put(colorValue[1]);
 		linecolors.put(colorValue[2]);
 		linecolors.put(1.0f);
+		
+		linewidths.put(linewidth);
 
 		lastStoredX = x;
 		lastStoredZ = z;
@@ -176,6 +198,7 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 		linecoords.put(new float[] { 0, 0.1f, 0 });
 		linecolors.put(new float[] { 0.0f, 0.0f, 0.0f, 1.0f });
+		linewidths.put(linewidth);
 	}
 
 	/**
@@ -215,21 +238,16 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 	}
 
 	public void resetLines() {
-		linecoords.position(0);
-		linecolors.position(0);
+		needClear = true;
 	}
 
 	public void increaseSize() {
-		if (linewidth < 10.0f) {
+		if (linewidth < 10.0f)
 			linewidth += 1.0f;
-			pointsize += 1.0f;
-		}
 	}
 	
 	public void decreaseSize() {
-		if (linewidth > 2.0f) {
+		if (linewidth > 2.0f)
 			linewidth -= 1.0f;
-			pointsize -= 1.0f;
-		}
 	}
 }
