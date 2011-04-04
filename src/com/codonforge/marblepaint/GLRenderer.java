@@ -16,7 +16,7 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 	private int height;
 
 	private Object3D enclosure;
-	private Marble marble = new Marble();
+	private Marble marble;
 	private int uiTexture;
 
 	private transient boolean needClear;
@@ -31,7 +31,7 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 		enclosure.render();
 		
-		marble.update();
+		marble.update(width, height);
 		marble.render();
 		
 		if(needClear) {
@@ -52,12 +52,12 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 	public void onSurfaceChanged(GL10 gl, int width, int height) {
 		this.width = width;
 		this.height = height;
+		marble = new Marble(width / 2, height / 2);
 
 		glViewport(0, 0, width, height);
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
-		glOrthof(-14.5f, 14.5f, 8.0f, -8.0f, -1.0f, 1.0f);
-	//	GLU.gluPerspective(gl, 45.0f, (float) width / (float) height, 0.1f, 100.0f);
+		glOrthof(0.0f, width, height, 0.0f, -25.0f, 25.0f);
 		glMatrixMode(GL_MODELVIEW);
 
 		try {

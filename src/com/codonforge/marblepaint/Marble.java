@@ -7,12 +7,12 @@ import java.nio.FloatBuffer;
 import android.util.Log;
 
 public class Marble {
+	private static final float radius = 25.0f;
 	// true to store a line width for each part of the line (slower)
 	private static boolean widthPerSegment = false;
 	
 	private float x;
 	private float y;
-	private float z;
 	
 	private float lastStoredX;
 	private float lastStoredZ;
@@ -27,12 +27,15 @@ public class Marble {
 	private FloatBuffer linecolors;
 	private FloatBuffer linewidths;
 	
-	public Marble() {
+	public Marble(int x, int y) {
+		this.x = x;
+		this.y = y;
+		
 		linewidth = 4.0f;
 		colorValue = new float[] { 0.0f, 0.0f, 0.0f };
 		
-		linecoords = Calc.alloc(3 * 256);
-		linecoords.put(new float[] { 0, 0.1f, 0 });
+		linecoords = Calc.alloc(2 * 256);
+		linecoords.put(new float[] { x, y });
 		
 		linecolors = Calc.alloc(4 * 256);
 		linecolors.put(new float[] { 0.0f, 0.0f, 0.0f, 1.0f });
@@ -55,10 +58,10 @@ public class Marble {
 
 		glEnableClientState(GL_VERTEX_ARRAY);
 		glEnableClientState(GL_COLOR_ARRAY);
-		glVertexPointer(3, GL_FLOAT, 0, linecoords);
+		glVertexPointer(2, GL_FLOAT, 0, linecoords);
 		glColorPointer(4, GL_FLOAT, 0, linecolors);
 
-		int n = nv / 3;
+		int n = nv / 2;
 		if(widthPerSegment) {
 			// This really sacrifices a lot of our speed because instead of 
 			// drawing the whole line strip in one call, we have to specify the
@@ -94,42 +97,42 @@ public class Marble {
 		// Draw the actual marble
 		glPushMatrix();
 			glColor4f(colorValue[0], colorValue[1], colorValue[2], 1.0f);
-			glTranslatef(x, z, y);
-			GLUT.glutSolidSphere(1.0f, 32, 32);
+			glTranslatef(x, y, 0);
+			GLUT.glutSolidSphere(radius, 32, 32);
 		glPopMatrix();
 	}
 	
 	public void accelerate(float x, float y, float z) {
-		xAccel += 0.02f * y;
-		yAccel += 0.02f * x;
+		xAccel += 0.5f * y;
+		yAccel += 0.5f * x;
 	}
 	
-	public void update() {
+	public void update(int w, int h) {
 		float newx = x + xAccel;
-		float newy = z + yAccel;
+		float newy = y + yAccel;
 
-		if (Math.abs(newx) > 13.5f) {
+		if (newx <= radius || newx >= w - radius) {
 			xAccel *= -0.2f;
 		}
-		if (Math.abs(newy) > 7.0f) {
+		if (newy <= radius || newy >= h - radius) {
 			yAccel *= -0.2f;
 		}
 
 		x += xAccel;
-		z += yAccel;
+		y += yAccel;
 		
-		if (Calc.distanceSquared(lastStoredX, lastStoredZ, x, z) > 1.0f)
-			addSegmentTo(x, 0.1f, z);
+		if (Calc.distanceSquared(lastStoredX, lastStoredZ, x, y) > 750.0f)
+			addSegmentTo(x, y);
 	}
 	
 	/**
 	 * This isn't so bad on memory as I initially thought
 	 */
-	private void addSegmentTo(float x, float y, float z) {
+	private void addSegmentTo(float x, float y) {
 		if (!linecoords.hasRemaining())
 			linecoords = resize(linecoords);
 
-		linecoords.put(x).put(z).put(y);
+		linecoords.put(x).put(y);
 		
 		if (!linecolors.hasRemaining())
 			linecolors = resize(linecolors);
@@ -147,7 +150,7 @@ public class Marble {
 		}
 
 		lastStoredX = x;
-		lastStoredZ = z;
+		lastStoredZ = y;
 	}
 	
 	private FloatBuffer resize(FloatBuffer fb) {
