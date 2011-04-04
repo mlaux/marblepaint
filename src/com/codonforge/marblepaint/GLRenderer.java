@@ -15,7 +15,6 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 	private int width;
 	private int height;
 
-	private Object3D enclosure;
 	private Marble marble;
 	private int uiTexture;
 
@@ -26,10 +25,8 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		glLoadIdentity();
-	//	GLU.gluLookAt(gl, 0, 25, 5, 0, 0, 0, 0, 1, 0);
 
 		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-		enclosure.render();
 		
 		marble.update(width, height);
 		marble.render();
@@ -41,7 +38,7 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 		
 		glDisable(GL_LIGHTING);
 		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-	//	Rect.render(-14.5f, -8.0f, 14.0f, 14.0f, uiTexture);
+		Rect.render(0, 0, 256, 256, uiTexture);
 		glEnable(GL_LIGHTING);
 	}
 
@@ -59,14 +56,8 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 		glLoadIdentity();
 		glOrthof(0.0f, width, height, 0.0f, -25.0f, 25.0f);
 		glMatrixMode(GL_MODELVIEW);
-
-		try {
-			enclosure = new Object3D(MarblePaint.getContext(), R.raw.box, -1);
-			enclosure.setScale(0.45f);
-			uiTexture = Texture.loadTexture(MarblePaint.getContext(), R.drawable.ui);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		
+		uiTexture = Texture.loadTexture(MarblePaint.getContext(), R.drawable.ui);
 	}
 
 	public void onSurfaceCreated(GL10 gl, EGLConfig config) {
