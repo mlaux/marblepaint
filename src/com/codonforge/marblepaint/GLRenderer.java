@@ -41,7 +41,7 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 		
 		glDisable(GL_LIGHTING);
 		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-		Rect.render(-14.5f, -8.0f, 14.0f, 14.0f, uiTexture);
+	//	Rect.render(-14.5f, -8.0f, 14.0f, 14.0f, uiTexture);
 		glEnable(GL_LIGHTING);
 	}
 

@@ -167,7 +167,8 @@ public class Marble {
 	public void clear() {
 		linecoords.position(0);
 		linecolors.position(0);
-		linewidths.position(0);
+		if(widthPerSegment)
+			linewidths.position(0);
 	}
 	
 	public void increaseSize() {
