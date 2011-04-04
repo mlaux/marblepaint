@@ -8,16 +8,16 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 import android.opengl.GLSurfaceView;
-import android.opengl.GLU;
 
 public class GLRenderer implements GLSurfaceView.Renderer {
-	private static final FloatBuffer lightPos = Calc.wrapDirect(0.0f, 0.0f, 0.0f, 1.0f);
+	private static final FloatBuffer lightPos = Calc.wrapDirect(0.0f, 0.0f, 1.0f, 0.0f);
 
 	private int width;
 	private int height;
 
 	private Object3D enclosure;
 	private Marble marble = new Marble();
+	private int uiTexture;
 
 	private transient boolean needClear;
 
@@ -26,7 +26,7 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		glLoadIdentity();
-		GLU.gluLookAt(gl, 0, 25, 5, 0, 0, 0, 0, 1, 0);
+	//	GLU.gluLookAt(gl, 0, 25, 5, 0, 0, 0, 0, 1, 0);
 
 		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 		enclosure.render();
@@ -38,6 +38,11 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 			marble.clear();
 			needClear = false;
 		}
+		
+		glDisable(GL_LIGHTING);
+		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+		Rect.render(-14.5f, -8.0f, 14.0f, 14.0f, uiTexture);
+		glEnable(GL_LIGHTING);
 	}
 
 	public void accelerate(float x, float y, float z) {
@@ -51,13 +56,14 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 		glViewport(0, 0, width, height);
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
-		GLU.gluPerspective(gl, 45.0f, (float) width / (float) height, 0.1f,
-				100.0f);
+		glOrthof(-14.5f, 14.5f, 8.0f, -8.0f, -1.0f, 1.0f);
+	//	GLU.gluPerspective(gl, 45.0f, (float) width / (float) height, 0.1f, 100.0f);
 		glMatrixMode(GL_MODELVIEW);
 
 		try {
 			enclosure = new Object3D(MarblePaint.getContext(), R.raw.box, -1);
 			enclosure.setScale(0.45f);
+			uiTexture = Texture.loadTexture(MarblePaint.getContext(), R.drawable.ui);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -79,36 +85,6 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 		glEnable(GL_LIGHT0);
 		glEnable(GL_COLOR_MATERIAL);
 		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-	}
-
-	/**
-	 * Enables orthographic (2d) projection
-	 */
-	private void orthoOn() {
-		glMatrixMode(GL_PROJECTION);
-		glPushMatrix();
-		glLoadIdentity();
-		glOrthof(0, width, height, 0, 1, -1);
-
-		glMatrixMode(GL_MODELVIEW);
-		glPushMatrix();
-		glLoadIdentity();
-
-		glDisable(GL_LIGHTING);
-		glDisable(GL_COLOR_MATERIAL);
-	}
-
-	/**
-	 * Disables orthographic projection
-	 */
-	private void orthoOff() {
-		glMatrixMode(GL_PROJECTION);
-		glPopMatrix();
-		glMatrixMode(GL_MODELVIEW);
-		glPopMatrix();
-
-		glEnable(GL_COLOR_MATERIAL);
-		glEnable(GL_LIGHTING);
 	}
 
 	public void setColorValue(float r, float g, float b) {

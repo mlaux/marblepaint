@@ -94,7 +94,7 @@ public class Marble {
 		// Draw the actual marble
 		glPushMatrix();
 			glColor4f(colorValue[0], colorValue[1], colorValue[2], 1.0f);
-			glTranslatef(x, y, z);
+			glTranslatef(x, z, y);
 			GLUT.glutSolidSphere(1.0f, 32, 32);
 		glPopMatrix();
 	}
@@ -129,7 +129,7 @@ public class Marble {
 		if (!linecoords.hasRemaining())
 			linecoords = resize(linecoords);
 
-		linecoords.put(x).put(y).put(z);
+		linecoords.put(x).put(z).put(y);
 		
 		if (!linecolors.hasRemaining())
 			linecolors = resize(linecolors);
