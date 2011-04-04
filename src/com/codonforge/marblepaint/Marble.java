@@ -7,6 +7,9 @@ import java.nio.FloatBuffer;
 import android.util.Log;
 
 public class Marble {
+	// true to store a line width for each part of the line (slower)
+	private static boolean widthPerSegment = false;
+	
 	private float x;
 	private float y;
 	private float z;
@@ -16,19 +19,28 @@ public class Marble {
 
 	private float xAccel;
 	private float yAccel;
+
+	private float linewidth;
+	private float[] colorValue;
 	
-
-	private FloatBuffer linecoords = Calc.alloc(3 * 256);
-	private FloatBuffer linecolors = Calc.alloc(4 * 256);
-	private FloatBuffer linewidths = Calc.alloc(1 * 256);
-
-	private float linewidth = 4.0f;
-	private float[] colorValue = { 0.0f, 0.0f, 0.0f };
+	private FloatBuffer linecoords;
+	private FloatBuffer linecolors;
+	private FloatBuffer linewidths;
 	
 	public Marble() {
+		linewidth = 4.0f;
+		colorValue = new float[] { 0.0f, 0.0f, 0.0f };
+		
+		linecoords = Calc.alloc(3 * 256);
 		linecoords.put(new float[] { 0, 0.1f, 0 });
+		
+		linecolors = Calc.alloc(4 * 256);
 		linecolors.put(new float[] { 0.0f, 0.0f, 0.0f, 1.0f });
-		linewidths.put(linewidth);
+		
+		if(widthPerSegment) {
+			linewidths = Calc.alloc(1 * 256);
+			linewidths.put(linewidth);
+		}
 	}
 	
 	public void render() {
@@ -45,20 +57,28 @@ public class Marble {
 		glEnableClientState(GL_COLOR_ARRAY);
 		glVertexPointer(3, GL_FLOAT, 0, linecoords);
 		glColorPointer(4, GL_FLOAT, 0, linecolors);
-		
-		// This really sacrifices a lot of our speed because instead of 
-		// drawing the whole line strip in one call, we have to specify the
-		// width of each segment and then draw it, which requires /n/ function
-		// calls, where /n/ is the number of line segments in the trail.
-		// So, we should probably optimize this.
-		
+
 		int n = nv / 3;
-		for(int k = 1; k < n; k++) {
-			float w = linewidths.get(k);
-			glLineWidth(w);
-			glPointSize(w - 2.0f);
-			glDrawArrays(GL_POINTS, k, 1);
-			glDrawArrays(GL_LINE_STRIP, k - 1, 2);
+		if(widthPerSegment) {
+			// This really sacrifices a lot of our speed because instead of 
+			// drawing the whole line strip in one call, we have to specify the
+			// width of each segment and then draw it, which requires /n/ function
+			// calls, where /n/ is the number of line segments in the trail.
+			// So, we should probably optimize this.
+
+			for(int k = 1; k < n; k++) {
+				float w = linewidths.get(k);
+				glLineWidth(w);
+				glPointSize(w - 2.0f);
+				glDrawArrays(GL_POINTS, k, 1);
+				glDrawArrays(GL_LINE_STRIP, k - 1, 2);
+			}
+		} else {
+			// Do it the fast way.
+			glLineWidth(linewidth);
+			glPointSize(linewidth - 2.0f);
+			glDrawArrays(GL_POINTS, 0, n);
+			glDrawArrays(GL_LINE_STRIP, 0, n);
 		}
 		
 		glDisableClientState(GL_COLOR_ARRAY);
@@ -71,6 +91,7 @@ public class Marble {
 		linecoords.position(nv);
 		linecolors.position(nc);
 		
+		// Draw the actual marble
 		glPushMatrix();
 			glColor4f(colorValue[0], colorValue[1], colorValue[2], 1.0f);
 			glTranslatef(x, y, z);
@@ -102,24 +123,28 @@ public class Marble {
 	}
 	
 	/**
-	 * This is such a memory hog, we're going to have to do some debugging here
+	 * This isn't so bad on memory as I initially thought
 	 */
 	private void addSegmentTo(float x, float y, float z) {
 		if (!linecoords.hasRemaining())
 			linecoords = resize(linecoords);
-		if (!linecolors.hasRemaining())
-			linecolors = resize(linecolors);
-		if (!linewidths.hasRemaining())
-			linewidths = resize(linewidths);
 
 		linecoords.put(x).put(y).put(z);
+		
+		if (!linecolors.hasRemaining())
+			linecolors = resize(linecolors);
 		
 		linecolors.put(colorValue[0]);
 		linecolors.put(colorValue[1]);
 		linecolors.put(colorValue[2]);
 		linecolors.put(1.0f);
-		
-		linewidths.put(linewidth);
+			
+		if(widthPerSegment) {
+			if (!linewidths.hasRemaining())
+				linewidths = resize(linewidths);
+
+			linewidths.put(linewidth);
+		}
 
 		lastStoredX = x;
 		lastStoredZ = z;
@@ -130,9 +155,7 @@ public class Marble {
 		float[] f = new float[fb.position()];
 		fb.position(0);
 		fb.get(f);
-		fb = Calc.alloc(fb.capacity() * 2);
-		fb.put(f);
-		return fb;
+		return Calc.alloc(f.length * 2).put(f);
 	}
 	
 	public void setColor(float r, float g, float b) {
