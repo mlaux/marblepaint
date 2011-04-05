@@ -14,11 +14,11 @@ public class Marble {
 	private float x;
 	private float y;
 	
-	private float lastStoredX;
-	private float lastStoredZ;
-
 	private float xAccel;
 	private float yAccel;
+	
+	private float lastStoredX;
+	private float lastStoredZ;
 
 	private float linewidth;
 	private float[] colorValue;
@@ -53,9 +53,6 @@ public class Marble {
 		linecoords.position(0);
 		linecolors.position(0);
 
-		glDisable(GL_LIGHTING);
-		glDisable(GL_DEPTH_TEST);
-
 		glEnableClientState(GL_VERTEX_ARRAY);
 		glEnableClientState(GL_COLOR_ARRAY);
 		glVertexPointer(2, GL_FLOAT, 0, linecoords);
@@ -87,9 +84,6 @@ public class Marble {
 		glDisableClientState(GL_COLOR_ARRAY);
 		glDisableClientState(GL_VERTEX_ARRAY);
 
-		glEnable(GL_DEPTH_TEST);
-		glEnable(GL_LIGHTING);
-
 		// Put the buffers back so we can continue putting stuff in them
 		linecoords.position(nv);
 		linecolors.position(nc);
@@ -98,8 +92,17 @@ public class Marble {
 		glPushMatrix();
 			glColor4f(colorValue[0], colorValue[1], colorValue[2], 1.0f);
 			glTranslatef(x, y, 0);
+
+			glEnable(GL_LIGHTING);
 			GLUT.glutSolidSphere(radius, 32, 32);
+
+			glDisable(GL_LIGHTING);
 		glPopMatrix();
+	}
+	
+	// Linear interpolation
+	private float interpolate(float x1, float y1, float x2, float y2, float t) {
+		return y1 + (((t - x1) / (x2 - x1)) * (y2 - y1));
 	}
 	
 	public void accelerate(float x, float y, float z) {
@@ -122,7 +125,7 @@ public class Marble {
 		y += yAccel;
 		
 		if (Calc.distanceSquared(lastStoredX, lastStoredZ, x, y) > 750.0f)
-			addSegmentTo(x, y);
+			addSegmentTo(x, y); 
 	}
 	
 	/**

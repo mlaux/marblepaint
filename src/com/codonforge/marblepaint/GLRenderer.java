@@ -10,7 +10,7 @@ import javax.microedition.khronos.opengles.GL10;
 import android.opengl.GLSurfaceView;
 
 public class GLRenderer implements GLSurfaceView.Renderer {
-	private static final FloatBuffer lightPos = Calc.wrapDirect(0.0f, 0.0f, 1.0f, 0.0f);
+	private static final FloatBuffer lightPos = Calc.wrapDirect(0.0f, 0.0f, -1.0f, 0.0f);
 
 	private int width;
 	private int height;
@@ -23,11 +23,9 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 	public void onDrawFrame(GL10 gl) {
 		// Clear the screen
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 		glLoadIdentity();
 
 		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-		
 		marble.update(width, height);
 		marble.render();
 		
@@ -36,14 +34,13 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 			needClear = false;
 		}
 		
-		glDisable(GL_LIGHTING);
 		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 		Rect.render(0, 0, 256, 256, uiTexture);
-		glEnable(GL_LIGHTING);
 	}
 
 	public void accelerate(float x, float y, float z) {
-		marble.accelerate(x, y, z);
+		if(marble != null)
+			marble.accelerate(x, y, z);
 	}
 
 	public void onSurfaceChanged(GL10 gl, int width, int height) {
@@ -61,10 +58,7 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 	}
 
 	public void onSurfaceCreated(GL10 gl, EGLConfig config) {
-		glEnable(GL_DEPTH_TEST);
-		glDepthFunc(GL_LEQUAL);
-
-		glEnable(GL_NORMALIZE);
+		glDisable(GL_DEPTH_TEST);
 
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -72,14 +66,14 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 		glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 
 		glLightfv(GL_LIGHT0, GL_POSITION, lightPos);
-		glEnable(GL_LIGHTING);
 		glEnable(GL_LIGHT0);
 		glEnable(GL_COLOR_MATERIAL);
 		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 	}
 
 	public void setColorValue(float r, float g, float b) {
-		marble.setColor(r, g, b);
+		if(marble != null)
+			marble.setColor(r, g, b);
 	}
 
 	public void resetLines() {
@@ -87,10 +81,12 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 	}
 
 	public void increaseSize() {
-		marble.increaseSize();
+		if(marble != null)
+			marble.increaseSize();
 	}
 	
 	public void decreaseSize() {
-		marble.decreaseSize();
+		if(marble != null)
+			marble.decreaseSize();
 	}
 }
