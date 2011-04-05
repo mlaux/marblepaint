@@ -8,7 +8,7 @@
 		android:id="@+id/glSurfaceView"></android.opengl.GLSurfaceView>
 		
 		<LinearLayout android:id="@+id/controls"
-			android:layout_width="fill_parent" android:layout_gravity="bottom"
+			android:layout_width="fill_parent" android:layout_gravity="top"
 			android:layout_height="wrap_content" android:orientation="horizontal">
 			
 			<com.google.ads.AdView android:layout_width="wrap_content"
