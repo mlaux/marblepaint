@@ -16,9 +16,7 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 	private int height;
 
 	private Marble marble;
-	private int uiTexture;
-
-	private transient boolean needClear;
+	private Menu menu;
 
 	public void onDrawFrame(GL10 gl) {
 		// Clear the screen
@@ -29,13 +27,8 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 		marble.update(width, height);
 		marble.render();
 		
-		if(needClear) {
-			marble.clear();
-			needClear = false;
-		}
-		
 		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-		Rect.render(0, 0, 256, 256, uiTexture);
+		menu.render();
 	}
 
 	public void accelerate(float x, float y, float z) {
@@ -54,7 +47,8 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 		glOrthof(0.0f, width, height, 0.0f, -25.0f, 25.0f);
 		glMatrixMode(GL_MODELVIEW);
 		
-		uiTexture = Texture.loadTexture(MarblePaint.getContext(), R.drawable.ui);
+		int uiTexture = Texture.loadTexture(MarblePaint.getContext(), R.drawable.ui);
+		menu = new Menu(marble, 0, 0, 384, 384, uiTexture);
 	}
 
 	public void onSurfaceCreated(GL10 gl, EGLConfig config) {
@@ -63,30 +57,13 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-		glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
-
 		glLightfv(GL_LIGHT0, GL_POSITION, lightPos);
 		glEnable(GL_LIGHT0);
 		glEnable(GL_COLOR_MATERIAL);
 		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 	}
 
-	public void setColorValue(float r, float g, float b) {
-		if(marble != null)
-			marble.setColor(r, g, b);
-	}
-
-	public void resetLines() {
-		needClear = true;
-	}
-
-	public void increaseSize() {
-		if(marble != null)
-			marble.increaseSize();
-	}
-	
-	public void decreaseSize() {
-		if(marble != null)
-			marble.decreaseSize();
+	public boolean handleMenuClick(float f, float g) {
+		return menu.handleClick((int) f, (int) g);
 	}
 }

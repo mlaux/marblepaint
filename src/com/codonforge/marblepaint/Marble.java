@@ -26,6 +26,8 @@ public class Marble {
 	private FloatBuffer linecoords;
 	private FloatBuffer linecolors;
 	private FloatBuffer linewidths;
+
+	private transient boolean needClear;
 	
 	public Marble(int x, int y) {
 		this.x = x;
@@ -98,11 +100,14 @@ public class Marble {
 
 			glDisable(GL_LIGHTING);
 		glPopMatrix();
-	}
-	
-	// Linear interpolation
-	private float interpolate(float x1, float y1, float x2, float y2, float t) {
-		return y1 + (((t - x1) / (x2 - x1)) * (y2 - y1));
+		
+		if(needClear) {
+			linecoords.position(0);
+			linecolors.position(0);
+			if(widthPerSegment)
+				linewidths.position(0);
+			needClear = false;
+		}
 	}
 	
 	public void accelerate(float x, float y, float z) {
@@ -171,10 +176,7 @@ public class Marble {
 	}
 	
 	public void clear() {
-		linecoords.position(0);
-		linecolors.position(0);
-		if(widthPerSegment)
-			linewidths.position(0);
+		needClear = true;
 	}
 	
 	public void increaseSize() {

@@ -86,4 +86,8 @@ public class Calc {
 		return ByteBuffer.allocateDirect(size * 4).order(
 				ByteOrder.nativeOrder()).asFloatBuffer();
 	}
+	
+	public static float interpolate(float x1, float y1, float x2, float y2, float t) {
+		return y1 + (((t - x1) / (x2 - x1)) * (y2 - y1));
+	}
 }
