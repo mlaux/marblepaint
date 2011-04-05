@@ -15,23 +15,31 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 	private int width;
 	private int height;
 	
+	private boolean splash = true;
+	private int splashtex;
+
+	private Marble marble;
+	
+	private Menu menu;
 	private int arrowtex;
 	private boolean menuShown;
 
-	private Marble marble;
-	private Menu menu;
 
 	public void onDrawFrame(GL10 gl) {
 		// Clear the screen
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glLoadIdentity();
+		
+		if(splash) {
+			Rect.render(width / 2 - 256, height / 2 - 128, 512, 512, splashtex, false);
+			return;
+		}
 
 		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 		marble.update(width, height);
 		marble.render();
 		
 		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-		
 		if(menuShown)
 			menu.render();
 		Rect.render(menuShown ? 384 : 0, height - 64, 64, 64, arrowtex, menuShown);
@@ -54,6 +62,7 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 		glOrthof(0.0f, width, height, 0.0f, -25.0f, 25.0f);
 		glMatrixMode(GL_MODELVIEW);
 		
+		splashtex = Texture.loadTexture(MarblePaint.getContext(), R.drawable.splash);
 		arrowtex = Texture.loadTexture(MarblePaint.getContext(), R.drawable.arrow);
 		
 		int uiTexture = Texture.loadTexture(MarblePaint.getContext(), R.drawable.ui);
@@ -72,18 +81,27 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 	}
 
-	public boolean handleMenuClick(float x, float y) {
+	public boolean handleTap(float x, float y) {
 		if(menuShown) {
 			if(x > 384 && x < 384 + 64 && y > height - 64 && y < height) {
 				menuShown = !menuShown;
 				return true;
 			}
+			return menu.handleClick((int) x, (int) y);
 		} else {
 			if(x > 0 && x < 64 && y > height - 64 && y < height) {
 				menuShown = !menuShown;
 				return true;
 			}
+			return false;
 		}
-		return menu.handleClick((int) x, (int) y);
+	}
+	
+	public void setSplash(boolean b) {
+		splash = b;
+	}
+	
+	public boolean getSplash() {
+		return splash;
 	}
 }

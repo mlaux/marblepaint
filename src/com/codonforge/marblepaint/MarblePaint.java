@@ -64,8 +64,14 @@ public class MarblePaint extends Activity implements SensorEventListener {
 	}
 	
 	public boolean onTouchEvent(MotionEvent e) {
-		if(e.getAction() == MotionEvent.ACTION_DOWN)
-			return glRenderer.handleMenuClick(e.getX(), e.getY());
+		if(e.getAction() == MotionEvent.ACTION_DOWN) {
+			if(glRenderer.getSplash()) {
+				glRenderer.setSplash(false);
+				return true;
+			} else {
+				return glRenderer.handleTap(e.getX(), e.getY());
+			}
+		}
 		return false;
 	}
 }
