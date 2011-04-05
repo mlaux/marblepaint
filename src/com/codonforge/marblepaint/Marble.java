@@ -11,6 +11,8 @@ public class Marble {
 	// true to store a line width for each part of the line (slower)
 	private static boolean widthPerSegment = false;
 	
+	private int counter;
+	
 	private float x;
 	private float y;
 	
@@ -59,6 +61,9 @@ public class Marble {
 		glEnableClientState(GL_COLOR_ARRAY);
 		glVertexPointer(2, GL_FLOAT, 0, linecoords);
 		glColorPointer(4, GL_FLOAT, 0, linecolors);
+		
+		if (counter == 120) counter = 0;
+		counter++;
 
 		int n = nv / 2;
 		if(widthPerSegment) {
@@ -188,5 +193,46 @@ public class Marble {
 	public void decreaseSize() {
 		if (linewidth > 2.0f)
 			linewidth -= 1.0f;
+	}
+	
+	public float[] getRainbowColor() {
+		float[] f = { 1.0f, 0f, 0f };
+		//red
+		if (counter == 0) {
+			f[0] = 1.0f;
+			f[1] = 0f;
+			f[2] = 0f;
+		}
+		//green
+		if (counter == 20) {
+			f[0] = 0f;
+			f[1] = 1.0f;
+			f[2] = 0f;
+		}
+		//blue
+		if (counter == 40) {
+			f[0] = 0f;
+			f[1] = 0f;
+			f[2] = 1.0f;
+		}
+		//yellow
+		if (counter == 60) {
+			f[0] = 1.0f;
+			f[1] = 1.0f;
+			f[2] = 0f;
+		}
+		//orange
+		if (counter == 80) {
+			f[0] = 1.0f;
+			f[1] = 0.5f;
+			f[2] = 0f;
+		}
+		//purple
+		if (counter == 100) {
+			f[0] = 0.5f;
+			f[1] = 0f;
+			f[2] = 1.0f;
+		}
+		return null;
 	}
 }
