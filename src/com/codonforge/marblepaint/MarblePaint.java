@@ -30,14 +30,13 @@ public class MarblePaint extends Activity implements SensorEventListener {
 		getWindow().addFlags(FLAG_FULLSCREEN | FLAG_KEEP_SCREEN_ON);
 
 		sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-		accelerometer = sensorManager
-				.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-
-		setContentView(R.layout.main);
+		accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
 		glRenderer = new GLRenderer();
-		glSurface = (GLSurfaceView) findViewById(R.id.glSurfaceView);
+		glSurface = new GLSurfaceView(this);
 		glSurface.setRenderer(glRenderer);
+
+		setContentView(glSurface);
 	}
 
 	protected void onResume() {

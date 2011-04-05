@@ -5,7 +5,7 @@
 	<uses-sdk android:minSdkVersion="4"/>
 
 	<application android:icon="@drawable/icon" android:label="@string/app_name"
-		android:debuggable="true">
+		android:debuggable="true" android:theme="@style/Theme.NoShadow">
 		<activity android:name=".MarblePaint" android:label="@string/app_name" android:screenOrientation="landscape">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
