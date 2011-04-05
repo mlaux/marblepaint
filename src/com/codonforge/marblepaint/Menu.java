@@ -24,7 +24,7 @@ public class Menu {
 	}
 	
 	public void render() {
-		Rect.render(x, y, width, height, texture);
+		Rect.render(x, y, width, height, texture, false);
 	}
 	
 	public boolean handleClick(int x, int y) {

@@ -32,8 +32,7 @@ public class Texture {
 		k |= k >> 4;
 		k |= k >> 8;
 		k |= k >> 16;
-		k += 1;
-		return k;
+		return k + 1;
 	}
 
 	public static int loadTexture(Bitmap bitmap) {
@@ -47,8 +46,8 @@ public class Texture {
 		glTexParameterx(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameterx(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
-		glTexParameterx(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameterx(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameterx(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameterx(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 		
 		GLUtils.texImage2D(GL_TEXTURE_2D, 0, bitmap, 0);
 		return id;

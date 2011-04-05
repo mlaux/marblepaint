@@ -14,6 +14,9 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 
 	private int width;
 	private int height;
+	
+	private int arrowtex;
+	private boolean menuShown;
 
 	private Marble marble;
 	private Menu menu;
@@ -28,7 +31,10 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 		marble.render();
 		
 		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-		menu.render();
+		
+		if(menuShown)
+			menu.render();
+		Rect.render(menuShown ? 384 : 0, height - 64, 64, 64, arrowtex, menuShown);
 	}
 
 	public void accelerate(float x, float y, float z) {
@@ -39,7 +45,8 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 	public void onSurfaceChanged(GL10 gl, int width, int height) {
 		this.width = width;
 		this.height = height;
-		marble = new Marble(width / 2, height / 2);
+		if(marble == null)
+			marble = new Marble(width / 2, height / 2);
 
 		glViewport(0, 0, width, height);
 		glMatrixMode(GL_PROJECTION);
@@ -47,8 +54,10 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 		glOrthof(0.0f, width, height, 0.0f, -25.0f, 25.0f);
 		glMatrixMode(GL_MODELVIEW);
 		
+		arrowtex = Texture.loadTexture(MarblePaint.getContext(), R.drawable.arrow);
+		
 		int uiTexture = Texture.loadTexture(MarblePaint.getContext(), R.drawable.ui);
-		menu = new Menu(marble, 0, 0, 384, 384, uiTexture);
+		menu = new Menu(marble, 0, height - 384, 384, 384, uiTexture);
 	}
 
 	public void onSurfaceCreated(GL10 gl, EGLConfig config) {
@@ -63,7 +72,18 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 	}
 
-	public boolean handleMenuClick(float f, float g) {
-		return menu.handleClick((int) f, (int) g);
+	public boolean handleMenuClick(float x, float y) {
+		if(menuShown) {
+			if(x > 384 && x < 384 + 64 && y > height - 64 && y < height) {
+				menuShown = !menuShown;
+				return true;
+			}
+		} else {
+			if(x > 0 && x < 64 && y > height - 64 && y < height) {
+				menuShown = !menuShown;
+				return true;
+			}
+		}
+		return menu.handleClick((int) x, (int) y);
 	}
 }
