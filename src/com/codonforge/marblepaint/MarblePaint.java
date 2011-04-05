@@ -41,8 +41,7 @@ public class MarblePaint extends Activity implements SensorEventListener {
 
 	protected void onResume() {
 		super.onResume();
-		sensorManager.registerListener(this, accelerometer,
-				SensorManager.SENSOR_DELAY_GAME);
+		sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME);
 	}
 
 	protected void onPause() {
