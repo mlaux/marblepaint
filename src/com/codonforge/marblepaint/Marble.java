@@ -25,6 +25,8 @@ public class Marble {
 	private float linewidth;
 	private float[] colorValue;
 	
+	private boolean rainbowMode;
+	
 	private FloatBuffer linecoords;
 	private FloatBuffer linecolors;
 	private FloatBuffer linewidths;
@@ -61,9 +63,6 @@ public class Marble {
 		glEnableClientState(GL_COLOR_ARRAY);
 		glVertexPointer(2, GL_FLOAT, 0, linecoords);
 		glColorPointer(4, GL_FLOAT, 0, linecolors);
-		
-		if (counter == 120) counter = 0;
-		counter++;
 
 		int n = nv / 2;
 		if(widthPerSegment) {
@@ -97,6 +96,8 @@ public class Marble {
 		
 		// Draw the actual marble
 		glPushMatrix();
+			if(rainbowMode)
+				updateRainbow();
 			glColor4f(colorValue[0], colorValue[1], colorValue[2], 1.0f);
 			glTranslatef(x, y, 0);
 
@@ -116,8 +117,8 @@ public class Marble {
 	}
 	
 	public void accelerate(float x, float y, float z) {
-		xAccel += (.5f * y) - (Math.sqrt(0.0000002f / 1f) * ((1.26f * y) * .1f / .5f));
-		yAccel += (.5f * x) - (Math.sqrt(0.0000002f / 1f) * ((1.26f * x) * .1f / .5f));
+		xAccel += (0.5f * y) - (4.472135955e-1 * ((1.26f * y) * (.1f / .5f)));
+		yAccel += (0.5f * x) - (4.472135955e-1 * ((1.26f * x) * (.1f / .5f)));
 		// Acceleration - Coefficient of Rotational Friction * Normal Force * Force of Rolling Resistance
 	}
 	
@@ -176,6 +177,7 @@ public class Marble {
 	}
 	
 	public void setColor(float r, float g, float b) {
+		rainbowMode = false;
 		colorValue[0] = r;
 		colorValue[1] = g;
 		colorValue[2] = b;
@@ -195,44 +197,30 @@ public class Marble {
 			linewidth -= 1.0f;
 	}
 	
-	public float[] getRainbowColor() {
-		float[] f = { 1.0f, 0f, 0f };
+	private void updateRainbow() {
 		//red
-		if (counter == 0) {
-			f[0] = 1.0f;
-			f[1] = 0f;
-			f[2] = 0f;
-		}
+		if (counter == 0)
+			colorValue = new float[] { 1, 0, 0 };
 		//green
-		if (counter == 20) {
-			f[0] = 0f;
-			f[1] = 1.0f;
-			f[2] = 0f;
-		}
+		else if (counter == 20)
+			colorValue = new float[] { 0, 1, 0 };
 		//blue
-		if (counter == 40) {
-			f[0] = 0f;
-			f[1] = 0f;
-			f[2] = 1.0f;
-		}
+		else if (counter == 40)
+			colorValue = new float[] { 0, 0, 1 };
 		//yellow
-		if (counter == 60) {
-			f[0] = 1.0f;
-			f[1] = 1.0f;
-			f[2] = 0f;
-		}
+		else if (counter == 60)
+			colorValue = new float[] { 1, 1, 0 };
 		//orange
-		if (counter == 80) {
-			f[0] = 1.0f;
-			f[1] = 0.5f;
-			f[2] = 0f;
-		}
+		else if (counter == 80)
+			colorValue = new float[] { 1, 0.5f, 0 };
 		//purple
-		if (counter == 100) {
-			f[0] = 0.5f;
-			f[1] = 0f;
-			f[2] = 1.0f;
-		}
-		return null;
+		else if (counter == 100)
+			colorValue = new float[] { 0.5f, 0, 1 };
+
+		counter = (counter + 1) % 120;
+	}
+
+	public void toggleRainbow() {
+		rainbowMode = !rainbowMode;
 	}
 }

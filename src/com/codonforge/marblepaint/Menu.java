@@ -51,7 +51,7 @@ public class Menu {
 			case 4: marble.setColor(1.0f, 1.0f, 0.0f); break; // yellow
 			case 5: marble.setColor(1.0f, 0.5f, 0.0f); break; // orange
 			case 6: marble.setColor(0.5f, 0.0f, 1.0f); break; // purple
-			case 7: marble.setColor(marble.getRainbowColor()[0],marble.getRainbowColor()[1],marble.getRainbowColor()[2]); break; // rainbow
+			case 7: marble.toggleRainbow(); break; // rainbow
 			case 8: marble.increaseSize(); break;
 			case 9: marble.decreaseSize(); break;
 			case 10: marble.clear(); break;
