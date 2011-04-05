@@ -2,7 +2,6 @@ package com.codonforge.marblepaint;
 
 import static android.view.WindowManager.LayoutParams.FLAG_FULLSCREEN;
 import static android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON;
-
 import android.app.Activity;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -12,6 +11,9 @@ import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.Window;
+
+import com.google.ads.AdRequest;
+import com.google.ads.AdView;
 
 public class MarblePaint extends Activity implements SensorEventListener {
 	private static MarblePaint context;
@@ -32,11 +34,14 @@ public class MarblePaint extends Activity implements SensorEventListener {
 		sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 		accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
+		setContentView(R.layout.main);
+		
 		glRenderer = new GLRenderer();
-		glSurface = new GLSurfaceView(this);
+		glSurface = (GLSurfaceView) this.findViewById(R.id.glSurfaceView);
 		glSurface.setRenderer(glRenderer);
-
-		setContentView(glSurface);
+		
+		AdView adView = (AdView) this.findViewById(R.id.ads);
+		adView.loadAd(new AdRequest());
 	}
 
 	protected void onResume() {
