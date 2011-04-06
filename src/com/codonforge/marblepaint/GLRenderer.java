@@ -10,24 +10,21 @@ import javax.microedition.khronos.opengles.GL10;
 import android.opengl.GLSurfaceView;
 
 public class GLRenderer implements GLSurfaceView.Renderer {
-	private static final FloatBuffer lightPos = Calc.wrapDirect(0.0f, 0.0f,
-			-1.0f, 0.0f);
+	private static final FloatBuffer lightPos = Calc.wrapDirect(0.0f, 0.0f, -1.0f, 0.0f);
 
 	private int width;
 	private int height;
 
 	private boolean splash = true;
 	private int splashtex;
-
-	private Marble marble;
-
-	private SettingsMenu settings;
-	private int settingstex;
-	private boolean settingsShown;
-
-	private ColorMenu menu;
+	
 	private int rgbtex;
-	private boolean menuShown;
+	private int settingstex;
+	private int arrowtex;
+	
+	private Marble marble;
+	private Menu colors;
+	private Menu settings;
 
 	public void onDrawFrame(GL10 gl) {
 		// Clear the screen
@@ -35,8 +32,7 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 		glLoadIdentity();
 
 		if (splash) {
-			Rect.render(width / 2 - 256, height / 2 - 128, 512, 512, splashtex,
-					false);
+			Rect.render(width / 2 - 256, height / 2 - 128, 512, 512, splashtex, false);
 			return;
 		}
 
@@ -45,14 +41,17 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 		marble.render();
 
 		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-		if (menuShown)
-			menu.render();
-		Rect.render(menuShown ? 384 : 0, height - 64, 64, 64,rgbtex,
-				menuShown);
-		if (settingsShown)
+		
+		if(colors.isVisible()) {
+			colors.render();
+			Rect.render(384, height - 64, 64, 64, arrowtex, true);
+		} else if(settings.isVisible()) {
 			settings.render();
-		Rect.render(settingsShown ? 384 : 0, height - 64, 64, 64, settingstex,
-				settingsShown);
+			Rect.render(384, height - 64, 64, 64, arrowtex, true);
+		} else {
+			Rect.render(0, height - 64, 64, 64, rgbtex, false);
+			Rect.render(64, height - 64, 64, 64, settingstex, false);
+		}
 	}
 
 	public void accelerate(float x, float y, float z) {
@@ -72,19 +71,37 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 		glOrthof(0.0f, width, height, 0.0f, -25.0f, 25.0f);
 		glMatrixMode(GL_MODELVIEW);
 
-		splashtex = Texture.loadTexture(MarblePaint.getContext(),
-				R.drawable.splash);
-		rgbtex = Texture.loadTexture(MarblePaint.getContext(),
-				R.drawable.rgb);
+		splashtex = Texture.loadTexture(MarblePaint.getContext(), R.drawable.splash);
+		rgbtex = Texture.loadTexture(MarblePaint.getContext(), R.drawable.rgb);
 		settingstex = Texture.loadTexture(MarblePaint.getContext(), R.drawable.settings);
+		arrowtex = Texture.loadTexture(MarblePaint.getContext(), R.drawable.arrow);
 
-		int uiTexture = Texture.loadTexture(MarblePaint.getContext(),
-				R.drawable.ui);
-		menu = new ColorMenu(marble, 0, height - 384, 384, 384, uiTexture, this);
+		int uiTexture = Texture.loadTexture(MarblePaint.getContext(), R.drawable.ui);
+		colors = new Menu(new MenuListener() {
+			public void onAction(int id) {
+				switch(id) {
+					case 0: marble.setColor(0.0f, 0.0f, 0.0f); break; // black
+					case 1: marble.setColor(1.0f, 0.0f, 0.0f); break; // red
+					case 2: marble.setColor(0.0f, 1.0f, 0.0f); break; // green
+					case 3: marble.setColor(0.0f, 0.0f, 1.0f); break; // blue
+					case 4: marble.setColor(1.0f, 1.0f, 0.0f); break; // yellow
+					case 5: marble.setColor(1.0f, 0.5f, 0.0f); break; // orange
+					case 6: marble.setColor(0.5f, 0.0f, 1.0f); break; // purple
+					case 7: marble.toggleRainbow(); break; // rainbow
+					case 8: marble.increaseSize(); break;
+					case 9: marble.decreaseSize(); break;
+					case 10: marble.clear(); break;
+					case 11: MarblePaint.getContext().finish();
+				}
+			}
+		}, 0, height - 384, 384, 384, uiTexture);
 
-		int settingsTexture = Texture.loadTexture(MarblePaint.getContext(),
-				R.drawable.ui2);
-		settings = new SettingsMenu(marble, 0, height - 384, 384, 384, settingsTexture);
+		int settingsTexture = Texture.loadTexture(MarblePaint.getContext(), R.drawable.ui2);
+		settings = new Menu(new MenuListener() {
+			public void onAction(int id) {
+				// TODO implement
+			}
+		}, 0, height - 384, 384, 384, settingsTexture);
 	}
 
 	public void onSurfaceCreated(GL10 gl, EGLConfig config) {
@@ -100,19 +117,29 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 	}
 
 	public boolean handleTap(float x, float y) {
-		if (menuShown) {
+		if(colors.isVisible()) {
 			if (x > 384 && x < 384 + 64 && y > height - 64 && y < height) {
-				menuShown = !menuShown;
+				colors.setVisible(false);
 				return true;
 			}
-			return menu.handleClick((int) x, (int) y);
+			return colors.handleClick((int) x, (int) y);
+		} else if(settings.isVisible()) {
+			if (x > 384 && x < 384 + 64 && y > height - 64 && y < height) {
+				settings.setVisible(false);
+				return true;
+			}
+			return settings.handleClick((int) x, (int) y);
 		} else {
 			if (x > 0 && x < 64 && y > height - 64 && y < height) {
-				menuShown = !menuShown;
+				colors.setVisible(true);
+				return true;
+			} else if (x > 64 && x < 128 && y > height - 64 && y < height) {
+				settings.setVisible(true);
 				return true;
 			}
-			return false;
 		}
+		
+		return false;
 	}
 
 	public void setSplash(boolean b) {
@@ -124,9 +151,7 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 	}
 
 	public void hideMenus() {
-		if (menuShown)
-			menuShown = false;
-		if (settingsShown)
-			settingsShown = false;
+		settings.setVisible(false);
+		colors.setVisible(false);
 	}
 }

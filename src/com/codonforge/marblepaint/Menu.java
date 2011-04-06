@@ -4,7 +4,7 @@ public class Menu {
 	private static final int ITEMS_PER_ROW = 4;
 	private static final int ITEMS_PER_COL = 3;
 	
-	private Marble marble;
+	private MenuListener listener;
 	
 	private int x;
 	private int y;
@@ -13,9 +13,11 @@ public class Menu {
 	private int height;
 	
 	private int texture;
+	private boolean visible;
 	
-	public Menu(Marble m, int _x, int _y, int w, int h, int tid) {
-		marble = m;
+	public Menu(MenuListener ml, int _x, int _y, int w, int h, int tid) {
+		listener = ml;
+		
 		x = _x;
 		y = _y;
 		width = w;
@@ -38,24 +40,16 @@ public class Menu {
 		int row = (int) (((float) y / height) * ITEMS_PER_COL);
 		int col = (int) (((float) x / width)  * ITEMS_PER_ROW);
 		
-		action((row * ITEMS_PER_ROW) + col);
+		listener.onAction((row * ITEMS_PER_ROW) + col);
 		return true;
 	}
 	
-	private void action(int id) {
-		switch(id) {
-			case 0: marble.setColor(0.0f, 0.0f, 0.0f); break; // black
-			case 1: marble.setColor(1.0f, 0.0f, 0.0f); break; // red
-			case 2: marble.setColor(0.0f, 1.0f, 0.0f); break; // green
-			case 3: marble.setColor(0.0f, 0.0f, 1.0f); break; // blue
-			case 4: marble.setColor(1.0f, 1.0f, 0.0f); break; // yellow
-			case 5: marble.setColor(1.0f, 0.5f, 0.0f); break; // orange
-			case 6: marble.setColor(0.5f, 0.0f, 1.0f); break; // purple
-			case 7: marble.toggleRainbow(); break; // rainbow
-			case 8: marble.increaseSize(); break;
-			case 9: marble.decreaseSize(); break;
-			case 10: marble.clear(); break;
-			case 11: MarblePaint.getContext().finish();
-		}
+	
+	public boolean isVisible() {
+		return visible;
+	}
+	
+	public void setVisible(boolean b) {
+		visible = b;
 	}
 }
