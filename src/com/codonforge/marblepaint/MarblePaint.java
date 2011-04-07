@@ -3,6 +3,8 @@ package com.codonforge.marblepaint;
 import static android.view.WindowManager.LayoutParams.FLAG_FULLSCREEN;
 import static android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -23,6 +25,8 @@ public class MarblePaint extends Activity implements SensorEventListener {
 
 	private SensorManager sensorManager;
 	private Sensor accelerometer;
+	
+	AlertDialog alert;
 
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -42,6 +46,15 @@ public class MarblePaint extends Activity implements SensorEventListener {
 		
 		AdView adView = (AdView) this.findViewById(R.id.ads);
 		adView.loadAd(new AdRequest());
+		
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setMessage("Coming Soon!").setCancelable(false).setNeutralButton("OK", new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int which) {
+					alert.hide();
+				}
+		       });
+		alert = builder.create();
+		alert.hide();
 	}
 
 	protected void onResume() {
@@ -77,5 +90,13 @@ public class MarblePaint extends Activity implements SensorEventListener {
 			}
 		}
 		return false;
+	}
+	
+	public void setComingSoonVisible(boolean b) {
+		if (b) {
+			alert.show();
+		} else {
+			alert.hide();
+		}
 	}
 }

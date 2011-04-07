@@ -138,50 +138,18 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 	class ColorMenuListener implements MenuListener {
 		public void onAction(int id) {
 			switch (id) {
-			case 0:
-				marble.setColor(0.0f, 0.0f, 0.0f);
-				colors.setVisible(false);
-				break; // black
-			case 1:
-				marble.setColor(1.0f, 0.0f, 0.0f);
-				colors.setVisible(false);
-				break; // red
-			case 2:
-				marble.setColor(0.0f, 1.0f, 0.0f);
-				colors.setVisible(false);
-				break; // green
-			case 3:
-				marble.setColor(0.0f, 0.0f, 1.0f);
-				colors.setVisible(false);
-				break; // blue
-			case 4:
-				marble.setColor(1.0f, 1.0f, 0.0f);
-				colors.setVisible(false);
-				break; // yellow
-			case 5:
-				marble.setColor(1.0f, 0.5f, 0.0f);
-				colors.setVisible(false);
-				break; // orange
-			case 6:
-				marble.setColor(0.5f, 0.0f, 1.0f);
-				colors.setVisible(false);
-				break; // purple
-			case 7:
-				marble.toggleRainbow();
-				colors.setVisible(false);
-				break; // rainbow
-			case 8:
-				marble.increaseSize();
-				break;
-			case 9:
-				marble.decreaseSize();
-				break;
-			case 10:
-				marble.clear();
-				colors.setVisible(false);
-				break;
-			case 11:
-				colors.setVisible(false);
+			case 0: marble.setColor(0.0f, 0.0f, 0.0f); colors.setVisible(false); break; // black
+			case 1: marble.setColor(1.0f, 0.0f, 0.0f); colors.setVisible(false); break; // red
+			case 2: marble.setColor(0.0f, 1.0f, 0.0f); colors.setVisible(false); break; // green
+			case 3: marble.setColor(0.0f, 0.0f, 1.0f); colors.setVisible(false); break; // blue
+			case 4: marble.setColor(1.0f, 1.0f, 0.0f); colors.setVisible(false); break; // yellow
+			case 5: marble.setColor(1.0f, 0.5f, 0.0f); colors.setVisible(false); break; // orange
+			case 6: marble.setColor(0.5f, 0.0f, 1.0f); colors.setVisible(false); break; // purple
+			case 7: marble.toggleRainbow(); colors.setVisible(false); break; // rainbow
+			case 8: marble.increaseSize(); break;
+			case 9: marble.decreaseSize(); break;
+			case 10: marble.clear(); colors.setVisible(false); break;
+			case 11: colors.setVisible(false);
 			}
 		}
 	}
@@ -189,9 +157,9 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 	class SettingsMenuListener implements MenuListener {
 		public void onAction(int id) {
 			switch(id) {
-				case 11:
-					settings.setVisible(false);
-					break;
+			case 2: MarblePaint.getContext().setComingSoonVisible(true);
+			case 3: MarblePaint.getContext().setComingSoonVisible(true);
+			case 11: settings.setVisible(false); break;
 			}
 		}
 	}
