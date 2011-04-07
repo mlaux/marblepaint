@@ -220,7 +220,7 @@ public class Marble {
 		counter = (counter + 1) % 120;
 	}
 
-	public void toggleRainbow() {
-		rainbowMode = !rainbowMode;
+	public void setRainbow(boolean b) {
+		rainbowMode = b;
 	}
 }

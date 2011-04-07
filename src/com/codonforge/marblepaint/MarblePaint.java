@@ -13,6 +13,7 @@ import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.Window;
+import android.widget.Toast;
 
 import com.google.ads.AdRequest;
 import com.google.ads.AdView;
@@ -26,8 +27,6 @@ public class MarblePaint extends Activity implements SensorEventListener {
 	private SensorManager sensorManager;
 	private Sensor accelerometer;
 	
-	AlertDialog alert;
-
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		context = this;
@@ -46,15 +45,6 @@ public class MarblePaint extends Activity implements SensorEventListener {
 		
 		AdView adView = (AdView) this.findViewById(R.id.ads);
 		adView.loadAd(new AdRequest());
-		
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setMessage("Coming Soon!").setCancelable(false).setNeutralButton("OK", new DialogInterface.OnClickListener() {
-				public void onClick(DialogInterface dialog, int which) {
-					alert.hide();
-				}
-		       });
-		alert = builder.create();
-		alert.hide();
 	}
 
 	protected void onResume() {
@@ -92,11 +82,7 @@ public class MarblePaint extends Activity implements SensorEventListener {
 		return false;
 	}
 	
-	public void setComingSoonVisible(boolean b) {
-		if (b) {
-			alert.show();
-		} else {
-			alert.hide();
-		}
+	public void alert(String text) { 
+		Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
 	}
 }

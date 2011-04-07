@@ -10,8 +10,7 @@ import javax.microedition.khronos.opengles.GL10;
 import android.opengl.GLSurfaceView;
 
 public class GLRenderer implements GLSurfaceView.Renderer {
-	private static final FloatBuffer lightPos = Calc.wrapDirect(0.0f, 0.0f,
-			-1.0f, 0.0f);
+	private static final FloatBuffer lightPos = Calc.wrapDirect(0.0f, 0.0f, -1.0f, 0.0f);
 
 	private int width;
 	private int height;
@@ -21,7 +20,6 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 
 	private int rgbtex;
 	private int settingstex;
-	private int arrowtex;
 
 	private Marble marble;
 	private Menu colors;
@@ -43,13 +41,11 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 
 		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
-		if (colors.isVisible()) {
+		if (colors.isVisible())
 			colors.render();
-			Rect.render(384, height - 64, 64, 64, arrowtex, true);
-		} else if (settings.isVisible()) {
+		else if (settings.isVisible())
 			settings.render();
-			Rect.render(384, height - 64, 64, 64, arrowtex, true);
-		} else {
+		else {
 			Rect.render(0, height - 64, 64, 64, rgbtex, false);
 			Rect.render(64, height - 64, 64, 64, settingstex, false);
 		}
@@ -75,7 +71,6 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 		splashtex = Texture.loadTexture(MarblePaint.getContext(), R.drawable.splash);
 		rgbtex = Texture.loadTexture(MarblePaint.getContext(), R.drawable.rgb);
 		settingstex = Texture.loadTexture(MarblePaint.getContext(), R.drawable.settings);
-		arrowtex = Texture.loadTexture(MarblePaint.getContext(), R.drawable.arrow);
 
 		int uiTexture = Texture.loadTexture(MarblePaint.getContext(), R.drawable.ui);
 		colors = new Menu(new ColorMenuListener(), 0, height - 384, 384, 384, uiTexture);
@@ -130,26 +125,21 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 		return splash;
 	}
 
-	public void hideMenus() {
-		settings.setVisible(false);
-		colors.setVisible(false);
-	}
-	
 	class ColorMenuListener implements MenuListener {
 		public void onAction(int id) {
 			switch (id) {
-			case 0: marble.setColor(0.0f, 0.0f, 0.0f); colors.setVisible(false); break; // black
-			case 1: marble.setColor(1.0f, 0.0f, 0.0f); colors.setVisible(false); break; // red
-			case 2: marble.setColor(0.0f, 1.0f, 0.0f); colors.setVisible(false); break; // green
-			case 3: marble.setColor(0.0f, 0.0f, 1.0f); colors.setVisible(false); break; // blue
-			case 4: marble.setColor(1.0f, 1.0f, 0.0f); colors.setVisible(false); break; // yellow
-			case 5: marble.setColor(1.0f, 0.5f, 0.0f); colors.setVisible(false); break; // orange
-			case 6: marble.setColor(0.5f, 0.0f, 1.0f); colors.setVisible(false); break; // purple
-			case 7: marble.toggleRainbow(); colors.setVisible(false); break; // rainbow
-			case 8: marble.increaseSize(); break;
-			case 9: marble.decreaseSize(); break;
-			case 10: marble.clear(); colors.setVisible(false); break;
-			case 11: colors.setVisible(false);
+				case 0: marble.setColor(0.0f, 0.0f, 0.0f); colors.setVisible(false); break; // black
+				case 1: marble.setColor(1.0f, 0.0f, 0.0f); colors.setVisible(false); break; // red
+				case 2: marble.setColor(0.0f, 1.0f, 0.0f); colors.setVisible(false); break; // green
+				case 3: marble.setColor(0.0f, 0.0f, 1.0f); colors.setVisible(false); break; // blue
+				case 4: marble.setColor(1.0f, 1.0f, 0.0f); colors.setVisible(false); break; // yellow
+				case 5: marble.setColor(1.0f, 0.5f, 0.0f); colors.setVisible(false); break; // orange
+				case 6: marble.setColor(0.5f, 0.0f, 1.0f); colors.setVisible(false); break; // purple
+				case 7: marble.setRainbow(true); colors.setVisible(false); break; // rainbow
+				case 8: marble.increaseSize(); break;
+				case 9: marble.decreaseSize(); break;
+				case 10: marble.clear(); colors.setVisible(false); break;
+				case 11: colors.setVisible(false);
 			}
 		}
 	}
@@ -157,9 +147,13 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 	class SettingsMenuListener implements MenuListener {
 		public void onAction(int id) {
 			switch(id) {
-			case 2: MarblePaint.getContext().setComingSoonVisible(true);
-			case 3: MarblePaint.getContext().setComingSoonVisible(true);
-			case 11: settings.setVisible(false); break;
+				case 2:
+				case 3:
+					MarblePaint.getContext().alert("Coming soon!");
+					break;
+				case 11: 
+					settings.setVisible(false);
+					break;
 			}
 		}
 	}
