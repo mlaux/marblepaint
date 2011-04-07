@@ -33,8 +33,7 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 		glLoadIdentity();
 
 		if (splash) {
-			Rect.render(width / 2 - 256, height / 2 - 128, 512, 512, splashtex,
-					false);
+			Rect.render(width / 2 - 256, height / 2 - 128, 512, 512, splashtex, false);
 			return;
 		}
 
@@ -57,7 +56,7 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 	}
 
 	public void accelerate(float x, float y, float z) {
-		if (marble != null)
+		if (marble != null && !splash)
 			marble.accelerate(x, y, z);
 	}
 
@@ -73,74 +72,16 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 		glOrthof(0.0f, width, height, 0.0f, -25.0f, 25.0f);
 		glMatrixMode(GL_MODELVIEW);
 
-		splashtex = Texture.loadTexture(MarblePaint.getContext(),
-				R.drawable.splash);
+		splashtex = Texture.loadTexture(MarblePaint.getContext(), R.drawable.splash);
 		rgbtex = Texture.loadTexture(MarblePaint.getContext(), R.drawable.rgb);
-		settingstex = Texture.loadTexture(MarblePaint.getContext(),
-				R.drawable.settings);
-		arrowtex = Texture.loadTexture(MarblePaint.getContext(),
-				R.drawable.arrow);
+		settingstex = Texture.loadTexture(MarblePaint.getContext(), R.drawable.settings);
+		arrowtex = Texture.loadTexture(MarblePaint.getContext(), R.drawable.arrow);
 
-		int uiTexture = Texture.loadTexture(MarblePaint.getContext(),
-				R.drawable.ui);
-		colors = new Menu(new MenuListener() {
-			public void onAction(int id) {
-				switch (id) {
-				case 0:
-					marble.setColor(0.0f, 0.0f, 0.0f);
-					colors.setVisible(false);
-					break; // black
-				case 1:
-					marble.setColor(1.0f, 0.0f, 0.0f);
-					colors.setVisible(false);
-					break; // red
-				case 2:
-					marble.setColor(0.0f, 1.0f, 0.0f);
-					colors.setVisible(false);
-					break; // green
-				case 3:
-					marble.setColor(0.0f, 0.0f, 1.0f);
-					colors.setVisible(false);
-					break; // blue
-				case 4:
-					marble.setColor(1.0f, 1.0f, 0.0f);
-					colors.setVisible(false);
-					break; // yellow
-				case 5:
-					marble.setColor(1.0f, 0.5f, 0.0f);
-					colors.setVisible(false);
-					break; // orange
-				case 6:
-					marble.setColor(0.5f, 0.0f, 1.0f);
-					colors.setVisible(false);
-					break; // purple
-				case 7:
-					marble.toggleRainbow();
-					colors.setVisible(false);
-					break; // rainbow
-				case 8:
-					marble.increaseSize();
-					break;
-				case 9:
-					marble.decreaseSize();
-					break;
-				case 10:
-					marble.clear();
-					colors.setVisible(false);
-					break;
-				case 11:
-					colors.setVisible(false);
-				}
-			}
-		}, 0, height - 384, 384, 384, uiTexture);
+		int uiTexture = Texture.loadTexture(MarblePaint.getContext(), R.drawable.ui);
+		colors = new Menu(new ColorMenuListener(), 0, height - 384, 384, 384, uiTexture);
 
-		int settingsTexture = Texture.loadTexture(MarblePaint.getContext(),
-				R.drawable.ui2);
-		settings = new Menu(new MenuListener() {
-			public void onAction(int id) {
-				// TODO implement
-			}
-		}, 0, height - 384, 384, 384, settingsTexture);
+		int settingsTexture = Texture.loadTexture(MarblePaint.getContext(), R.drawable.ui2);
+		settings = new Menu(new SettingsMenuListener(), 0, height - 384, 384, 384, settingsTexture);
 	}
 
 	public void onSurfaceCreated(GL10 gl, EGLConfig config) {
@@ -192,5 +133,66 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 	public void hideMenus() {
 		settings.setVisible(false);
 		colors.setVisible(false);
+	}
+	
+	class ColorMenuListener implements MenuListener {
+		public void onAction(int id) {
+			switch (id) {
+			case 0:
+				marble.setColor(0.0f, 0.0f, 0.0f);
+				colors.setVisible(false);
+				break; // black
+			case 1:
+				marble.setColor(1.0f, 0.0f, 0.0f);
+				colors.setVisible(false);
+				break; // red
+			case 2:
+				marble.setColor(0.0f, 1.0f, 0.0f);
+				colors.setVisible(false);
+				break; // green
+			case 3:
+				marble.setColor(0.0f, 0.0f, 1.0f);
+				colors.setVisible(false);
+				break; // blue
+			case 4:
+				marble.setColor(1.0f, 1.0f, 0.0f);
+				colors.setVisible(false);
+				break; // yellow
+			case 5:
+				marble.setColor(1.0f, 0.5f, 0.0f);
+				colors.setVisible(false);
+				break; // orange
+			case 6:
+				marble.setColor(0.5f, 0.0f, 1.0f);
+				colors.setVisible(false);
+				break; // purple
+			case 7:
+				marble.toggleRainbow();
+				colors.setVisible(false);
+				break; // rainbow
+			case 8:
+				marble.increaseSize();
+				break;
+			case 9:
+				marble.decreaseSize();
+				break;
+			case 10:
+				marble.clear();
+				colors.setVisible(false);
+				break;
+			case 11:
+				colors.setVisible(false);
+			}
+		}
+	}
+	
+	class SettingsMenuListener implements MenuListener {
+		public void onAction(int id) {
+			switch(id) {
+				case 11:
+					settings.setVisible(false);
+					break;
+			}
+		}
 	}
 }
