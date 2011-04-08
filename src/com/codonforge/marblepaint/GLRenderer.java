@@ -155,8 +155,10 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 					break;
 				case 4:
 					MarblePaint.getContext().showAbout();
+					break;
 				case 5:
 					MarblePaint.getContext().showHelp();
+					break;
 				case 11: 
 					settings.setVisible(false);
 					break;

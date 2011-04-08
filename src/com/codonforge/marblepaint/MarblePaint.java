@@ -50,29 +50,15 @@ public class MarblePaint extends Activity implements SensorEventListener {
 		adView.loadAd(new AdRequest());
 		
 		//Notifications
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setMessage("About Marblepaint\nBy CodonForge")
-		       .setCancelable(false)
-		       .setNeutralButton("OK", new DialogInterface.OnClickListener() {
-		           public void onClick(DialogInterface dialog, int id) {
-		                about.hide();
-		           }
-
-		       });
-		about.hide();
-		about = builder.create();
+		about = makeDialog("About MarblePaint\nBy Codonforge");
 		
-		builder = new AlertDialog.Builder(this);
-		builder.setMessage("Help\nHow to...")
-		       .setCancelable(false)
-		       .setNeutralButton("OK", new DialogInterface.OnClickListener() {
-		           public void onClick(DialogInterface dialog, int id) {
-		                help.hide();
-		           }
-
-		       });
-		help.hide();
-		help = builder.create();
+		help = makeDialog("Help");
+	}
+	
+	private AlertDialog makeDialog(String text) {
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setMessage(text);
+		return builder.create();
 	}
 
 	protected void onResume() {
