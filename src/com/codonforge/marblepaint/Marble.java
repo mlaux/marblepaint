@@ -117,8 +117,8 @@ public class Marble {
 	}
 	
 	public void accelerate(float x, float y, float z) {
-		xAccel += (0.5f * y) - (4.472135955e-1 * ((1.26f * y) * (.1f / .5f)));
-		yAccel += (0.5f * x) - (4.472135955e-1 * ((1.26f * x) * (.1f / .5f)));
+		xAccel += ((0.5f * y) - (4.472135955e-1 * ((1.26f * y) * (.1f / .5f))));
+		yAccel += ((0.5f * x) - (4.472135955e-1 * ((1.26f * x) * (.1f / .5f))));
 		// Acceleration - Coefficient of Rotational Friction * Normal Force * Force of Rolling Resistance
 	}
 	

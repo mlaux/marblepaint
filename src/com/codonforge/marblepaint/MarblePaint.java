@@ -27,6 +27,9 @@ public class MarblePaint extends Activity implements SensorEventListener {
 	private SensorManager sensorManager;
 	private Sensor accelerometer;
 	
+	private	AlertDialog about;
+	private	AlertDialog help;
+	
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		context = this;
@@ -45,6 +48,31 @@ public class MarblePaint extends Activity implements SensorEventListener {
 		
 		AdView adView = (AdView) this.findViewById(R.id.ads);
 		adView.loadAd(new AdRequest());
+		
+		//Notifications
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setMessage("About Marblepaint\nBy CodonForge")
+		       .setCancelable(false)
+		       .setNeutralButton("OK", new DialogInterface.OnClickListener() {
+		           public void onClick(DialogInterface dialog, int id) {
+		                about.hide();
+		           }
+
+		       });
+		about.hide();
+		about = builder.create();
+		
+		builder = new AlertDialog.Builder(this);
+		builder.setMessage("Help\nHow to...")
+		       .setCancelable(false)
+		       .setNeutralButton("OK", new DialogInterface.OnClickListener() {
+		           public void onClick(DialogInterface dialog, int id) {
+		                help.hide();
+		           }
+
+		       });
+		help.hide();
+		help = builder.create();
 	}
 
 	protected void onResume() {
@@ -84,5 +112,12 @@ public class MarblePaint extends Activity implements SensorEventListener {
 	
 	public void alert(String text) { 
 		Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
+	}
+	
+	public void showAbout() {
+		about.show();
+	}
+	public void showHelp() {
+		help.show();
 	}
 }

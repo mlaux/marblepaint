@@ -148,9 +148,15 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 		public void onAction(int id) {
 			switch(id) {
 				case 2:
+					MarblePaint.getContext().alert("Coming soon!");
+					break;
 				case 3:
 					MarblePaint.getContext().alert("Coming soon!");
 					break;
+				case 4:
+					MarblePaint.getContext().showAbout();
+				case 5:
+					MarblePaint.getContext().showHelp();
 				case 11: 
 					settings.setVisible(false);
 					break;
