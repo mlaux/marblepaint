@@ -58,6 +58,11 @@ public class MarblePaint extends Activity implements SensorEventListener {
 	private AlertDialog makeDialog(String text) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setMessage(text);
+		builder.setNeutralButton("OK", new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int which) {
+				
+			}
+		});
 		return builder.create();
 	}
 
