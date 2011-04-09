@@ -54,6 +54,7 @@ public class MarblePaint extends Activity implements SensorEventListener {
 		
 		AdView adView = (AdView) this.findViewById(R.id.ads);
 		adView.loadAd(new AdRequest());
+		adView.setVisibility(View.INVISIBLE);
 		
 		//Notifications
 		final TextView aboutMessage = new TextView(this);
