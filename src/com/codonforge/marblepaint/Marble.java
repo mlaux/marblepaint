@@ -122,6 +122,12 @@ public class Marble {
 		// Acceleration - Coefficient of Rotational Friction * Normal Force * Force of Rolling Resistance
 	}
 	
+	public void setPos(float x, float y) {
+		xAccel = yAccel = 0;
+		this.x = x;
+		this.y = y;
+	}
+	
 	public void update(int w, int h) {
 		float newx = x + xAccel;
 		float newy = y + yAccel;

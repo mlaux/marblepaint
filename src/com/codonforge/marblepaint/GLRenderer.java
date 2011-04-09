@@ -16,6 +16,7 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 	private int height;
 
 	private boolean splash = true;
+	private boolean touch = false;
 	private int splashtex;
 
 	private int rgbtex;
@@ -52,7 +53,7 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 	}
 
 	public void accelerate(float x, float y, float z) {
-		if (marble != null && !splash)
+		if (marble != null && !splash && !touch)
 			marble.accelerate(x, y, z);
 	}
 
@@ -116,6 +117,14 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 
 		return false;
 	}
+	
+	public boolean handleDrag(float x, float y) {
+		if(touch) {
+			marble.setPos(x, y);
+			return true;
+		}
+		return false;
+	}
 
 	public void setSplash(boolean b) {
 		splash = b;
@@ -147,6 +156,12 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 	class SettingsMenuListener implements MenuListener {
 		public void onAction(int id) {
 			switch(id) {
+				case 0:
+					touch = false;
+					break;
+				case 1: 
+					touch = true;
+					break;
 				case 2: // save
 					MarblePaint.getContext().alert("Coming soon!");
 					break;
@@ -155,6 +170,7 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 					break;
 				case 4: // about
 					MarblePaint.getContext().showAbout();
+					settings.setVisible(false);
 					break;
 				case 5: // help
 					MarblePaint.getContext().showHelp();
@@ -163,9 +179,10 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 					MarblePaint.getContext().finish();
 					break;
 				case 11: // back
-					settings.setVisible(false);
 					break;
 			}
+
+			settings.setVisible(false);
 		}
 	}
 }

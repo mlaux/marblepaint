@@ -115,6 +115,8 @@ public class MarblePaint extends Activity implements SensorEventListener {
 			} else {
 				return glRenderer.handleTap(e.getX(), e.getY());
 			}
+		} else if(e.getAction() == MotionEvent.ACTION_MOVE) {
+			return glRenderer.handleDrag(e.getX(), e.getY());
 		}
 		return false;
 	}
