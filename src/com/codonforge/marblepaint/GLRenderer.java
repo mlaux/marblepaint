@@ -147,19 +147,22 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 	class SettingsMenuListener implements MenuListener {
 		public void onAction(int id) {
 			switch(id) {
-				case 2:
+				case 2: // save
 					MarblePaint.getContext().alert("Coming soon!");
 					break;
-				case 3:
+				case 3: // load
 					MarblePaint.getContext().alert("Coming soon!");
 					break;
-				case 4:
+				case 4: // about
 					MarblePaint.getContext().showAbout();
 					break;
-				case 5:
+				case 5: // help
 					MarblePaint.getContext().showHelp();
 					break;
-				case 11: 
+				case 8: // exit
+					MarblePaint.getContext().finish();
+					break;
+				case 11: // back
 					settings.setVisible(false);
 					break;
 			}
