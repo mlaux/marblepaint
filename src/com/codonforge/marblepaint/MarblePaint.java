@@ -2,6 +2,7 @@ package com.codonforge.marblepaint;
 
 import static android.view.WindowManager.LayoutParams.FLAG_FULLSCREEN;
 import static android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON;
+import android.R.color;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -11,8 +12,13 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
+import android.text.SpannableString;
+import android.text.method.LinkMovementMethod;
+import android.text.util.Linkify;
 import android.view.MotionEvent;
+import android.view.View;
 import android.view.Window;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.ads.AdRequest;
@@ -50,14 +56,26 @@ public class MarblePaint extends Activity implements SensorEventListener {
 		adView.loadAd(new AdRequest());
 		
 		//Notifications
-		about = makeDialog("About MarblePaint\nBy Codonforge");
+		final TextView aboutMessage = new TextView(this);
+		final TextView helpMessage = new TextView(this);
 		
-		help = makeDialog("Help");
+		final SpannableString a = new SpannableString("Created by Codonforge\nProgramming by Matt Laux\nArt and Physics by Jeff Bell\nhttp://www.codonforge.com");
+		Linkify.addLinks(a, Linkify.WEB_URLS);
+		aboutMessage.setText(a);
+		aboutMessage.setMovementMethod(LinkMovementMethod.getInstance());
+		
+		String h = "Tilt your phone to move the ball\nClick the wrench for settings\nClick the three balls for marble options\nChose the touch option to drag the ball";
+		helpMessage.setText(h);
+
+		about = makeDialog(aboutMessage, "About MarblePaint");
+		
+		help = makeDialog(helpMessage, "Help");
 	}
 	
-	private AlertDialog makeDialog(String text) {
+	private AlertDialog makeDialog(View text, String title) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setMessage(text);
+		builder.setTitle(title);
+		builder.setView(text);
 		builder.setNeutralButton("OK", new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int which) {
 				
