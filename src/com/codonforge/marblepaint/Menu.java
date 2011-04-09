@@ -1,5 +1,7 @@
 package com.codonforge.marblepaint;
 
+import android.view.View;
+
 public class Menu {
 	private static final int ITEMS_PER_ROW = 4;
 	private static final int ITEMS_PER_COL = 3;
@@ -50,6 +52,7 @@ public class Menu {
 	}
 	
 	public void setVisible(boolean b) {
+		MarblePaint.getContext().findViewById(R.id.ads).setVisibility(b ? View.VISIBLE : View.INVISIBLE);
 		visible = b;
 	}
 }
