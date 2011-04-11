@@ -4,8 +4,6 @@ import android.graphics.*;
 
 public class Marble {
 	private static final float radius = 25.0f;
-	private static final float[] SIN_TBL = new float[256];
-	private static final float[] COS_TBL = new float[256];
 
 	private float x;
 	private float y;
@@ -26,7 +24,7 @@ public class Marble {
 	private Paint m_linePaint;
 	
 	private int r1, g1, b1;
-	private int colorpos, counter;
+	private float[] colorValue;
 
 	public Marble(int x, int y, int sw, int sh) {
 		this.x = this.lastStoredX = x;
@@ -36,6 +34,7 @@ public class Marble {
 		m_drawCanvas = new Canvas(m_drawBuffer);
 		
 		linewidth = 4.0f;
+		colorValue = new float[] { 0.0f, 1.0f, 1.0f };
 
 		m_linePaint = new Paint();
 		m_linePaint.setARGB(0xFF, 0x00, 0x00, 0x00);
@@ -107,17 +106,10 @@ public class Marble {
 	}
 
 	private void updateRainbow() {
-		/*int a = colorpos & 0xff, b = (colorpos + 64) & 0xff, c = (colorpos + 128) & 0xff;
-		r1 = (int) (SIN_TBL[a] * 127 + 128);
-		g1 = (int) (SIN_TBL[b] * 127 + 128);
-		b1 = (int) (SIN_TBL[c] * 127 + 128);
-		m_linePaint.setARGB(0xFF, r1, g1, b1);
+		m_linePaint.setColor(Color.HSVToColor(colorValue));
 		
-		colorpos++;
-		colorpos &= 0xff;
-		*/
-		
-		// red
+		colorValue[0] = (colorValue[0] + 1.0f) % 360.0f;
+	/*	// red
 		if (counter == 0)
 			m_linePaint.setARGB(0xFF, 0xFF, 0x00, 0x00);
 		// green
@@ -136,7 +128,7 @@ public class Marble {
 		else if (counter == 100)
 			m_linePaint.setARGB(0xFF, 0x7F, 0x00, 0xFF);
 
-		counter = (counter + 1) % 120;
+		counter = (counter + 1) % 120; */
 	}
 
 	public void setRainbow(boolean b) {
@@ -145,13 +137,5 @@ public class Marble {
 	
 	public void destroy() {
 		m_drawBuffer.recycle();
-	}
-	
-	static {
-		float dt = (float) Math.PI * 2.0f / 256.0f;
-		for(int k = 0; k < 256; k++) {
-			SIN_TBL[k] = (float) Math.sin(k * dt);
-			COS_TBL[k] = (float) Math.cos(k * dt);
-		}
 	}
 }

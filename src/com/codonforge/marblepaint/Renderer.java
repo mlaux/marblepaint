@@ -13,9 +13,6 @@ public class Renderer implements SurfaceHolder.Callback, Runnable {
 	private int m_width;
 	private int m_height;
 	
-	private Bitmap m_drawBuffer;
-	private Canvas m_drawCanvas;
-
 	private boolean splash = true;
 	private boolean touch = false;
 	private Bitmap splashtex;
@@ -37,8 +34,7 @@ public class Renderer implements SurfaceHolder.Callback, Runnable {
 				c = m_surfaceHolder.lockCanvas();
 				synchronized (m_surfaceHolder) {
 					if(c != null) {
-						render(m_drawCanvas);
-						c.drawBitmap(m_drawBuffer, 0, 0, null);
+						render(c);
 					}
 				}
 			} finally {
@@ -50,7 +46,7 @@ public class Renderer implements SurfaceHolder.Callback, Runnable {
 	}
 	
 	private void render(Canvas c) {
-		m_drawBuffer.eraseColor(0xFFFFFFFF);
+		c.drawColor(0xFFFFFFFF);
 		
 		if (splash) {
 			RectTool.render(c, splashtex, m_width / 2 - 256, m_height / 2 - 128, 512, 512);
@@ -174,9 +170,6 @@ public class Renderer implements SurfaceHolder.Callback, Runnable {
 		m_width = w;
 		m_height = h;
 		
-		m_drawBuffer = Bitmap.createBitmap(w, h, Bitmap.Config.RGB_565);
-		m_drawCanvas = new Canvas(m_drawBuffer);
-		
 		if (marble == null)
 			marble = new Marble(w / 2, h / 2, w, h);
 		
@@ -205,6 +198,6 @@ public class Renderer implements SurfaceHolder.Callback, Runnable {
 			m_renderThread.join();
 		} catch (InterruptedException e) { }
 		
-		m_drawBuffer.recycle();
+		marble.destroy();
 	}
 }
