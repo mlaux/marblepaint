@@ -24,6 +24,8 @@ import com.google.ads.AdRequest;
 import com.google.ads.AdView;
 
 public class MarblePaint extends Activity implements SensorEventListener {
+	private static final String VERSION = "1.2";
+	
 	private static MarblePaint context;
 
 	private SurfaceView surface;
@@ -67,7 +69,7 @@ public class MarblePaint extends Activity implements SensorEventListener {
 		String h = "Tilt your phone to move the ball\nClick the wrench for settings\nClick the three balls for marble options\nChose the touch option to drag the ball";
 		helpMessage.setText(h);
 
-		about = makeDialog(aboutMessage, "About MarblePaint");
+		about = makeDialog(aboutMessage, "About MarblePaint (v" + VERSION + ")");
 		
 		help = makeDialog(helpMessage, "Help");
 	}
