@@ -3,9 +3,10 @@
 	android:layout_width="fill_parent" android:layout_height="fill_parent"
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:ads="http://schemas.android.com/apk/res/com.codonforge.marblepaint">
-	<android.opengl.GLSurfaceView
+	
+	<SurfaceView
 		android:layout_width="fill_parent" android:layout_height="fill_parent"
-		android:id="@+id/glSurfaceView"></android.opengl.GLSurfaceView>
+		android:id="@+id/surfaceView"></SurfaceView>
 		
 		<LinearLayout android:id="@+id/controls"
 			android:layout_width="fill_parent" android:layout_gravity="top"

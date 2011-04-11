@@ -1,6 +1,9 @@
 package com.codonforge.marblepaint;
 
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.view.View;
+import android.graphics.Rect;
 
 public class Menu {
 	private static final int ITEMS_PER_ROW = 4;
@@ -14,10 +17,12 @@ public class Menu {
 	private int width;
 	private int height;
 	
-	private int texture;
+	private Rect area;
+	
+	private Bitmap texture;
 	private boolean visible;
 	
-	public Menu(MenuListener ml, int _x, int _y, int w, int h, int tid) {
+	public Menu(MenuListener ml, int _x, int _y, int w, int h, Bitmap tid) {
 		listener = ml;
 		
 		x = _x;
@@ -25,10 +30,12 @@ public class Menu {
 		width = w;
 		height = h;
 		texture = tid;
+		
+		area = new Rect(x, y, x + width, y + height);
 	}
 	
-	public void render() {
-		Rect.render(x, y, width, height, texture, false);
+	public void render(Canvas c) {
+		c.drawBitmap(texture, null, area, null);
 	}
 	
 	public boolean handleClick(int x, int y) {

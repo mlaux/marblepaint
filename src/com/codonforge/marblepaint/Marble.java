@@ -1,133 +1,68 @@
 package com.codonforge.marblepaint;
 
-import static android.opengl.GLES10.*;
-
-import java.nio.FloatBuffer;
-
-import android.util.Log;
+import android.graphics.*;
 
 public class Marble {
 	private static final float radius = 25.0f;
-	// true to store a line width for each part of the line (slower)
-	private static boolean widthPerSegment = false;
-	
-	private int counter;
-	
+	private static final float[] SIN_TBL = new float[256];
+	private static final float[] COS_TBL = new float[256];
+
 	private float x;
 	private float y;
-	
+
 	private float xAccel;
 	private float yAccel;
-	
+
 	private float lastStoredX;
-	private float lastStoredZ;
+	private float lastStoredY;
 
 	private float linewidth;
-	private float[] colorValue;
-	
-	private boolean rainbowMode;
-	
-	private FloatBuffer linecoords;
-	private FloatBuffer linecolors;
-	private FloatBuffer linewidths;
 
-	private transient boolean needClear;
+	private boolean rainbowMode;
+
+	private Bitmap m_drawBuffer;
+	private Canvas m_drawCanvas;
 	
-	public Marble(int x, int y) {
-		this.x = x;
-		this.y = y;
+	private Paint m_linePaint;
+	
+	private int r1, g1, b1;
+	private int colorpos, counter;
+
+	public Marble(int x, int y, int sw, int sh) {
+		this.x = this.lastStoredX = x;
+		this.y = this.lastStoredY = y;
+
+		m_drawBuffer = Bitmap.createBitmap(sw, sh, Bitmap.Config.ARGB_8888);
+		m_drawCanvas = new Canvas(m_drawBuffer);
 		
 		linewidth = 4.0f;
-		colorValue = new float[] { 0.0f, 0.0f, 0.0f };
-		
-		linecoords = Calc.alloc(2 * 256);
-		linecoords.put(new float[] { x, y });
-		
-		linecolors = Calc.alloc(4 * 256);
-		linecolors.put(new float[] { 0.0f, 0.0f, 0.0f, 1.0f });
-		
-		if(widthPerSegment) {
-			linewidths = Calc.alloc(1 * 256);
-			linewidths.put(linewidth);
-		}
+
+		m_linePaint = new Paint();
+		m_linePaint.setARGB(0xFF, 0x00, 0x00, 0x00);
+		m_linePaint.setStrokeWidth(linewidth);
 	}
-	
-	public void render() {
-		// Mark the current place in the buffer so we can reset it
-		int nv = linecoords.position(), nc = linecolors.position();
-		// Rewind the buffers to the beginning for OpenGL
-		linecoords.position(0);
-		linecolors.position(0);
 
-		glEnableClientState(GL_VERTEX_ARRAY);
-		glEnableClientState(GL_COLOR_ARRAY);
-		glVertexPointer(2, GL_FLOAT, 0, linecoords);
-		glColorPointer(4, GL_FLOAT, 0, linecolors);
-
-		int n = nv / 2;
-		if(widthPerSegment) {
-			// This really sacrifices a lot of our speed because instead of 
-			// drawing the whole line strip in one call, we have to specify the
-			// width of each segment and then draw it, which requires /n/ function
-			// calls, where /n/ is the number of line segments in the trail.
-			// So, we should probably optimize this.
-
-			for(int k = 1; k < n; k++) {
-				float w = linewidths.get(k);
-				glLineWidth(w);
-				glPointSize(w - 2.0f);
-				glDrawArrays(GL_POINTS, k, 1);
-				glDrawArrays(GL_LINE_STRIP, k - 1, 2);
-			}
-		} else {
-			// Do it the fast way.
-			glLineWidth(linewidth);
-			glPointSize(linewidth - 2.0f);
-			glDrawArrays(GL_POINTS, 0, n);
-			glDrawArrays(GL_LINE_STRIP, 0, n);
-		}
+	public void render(Canvas c) {
+		if(rainbowMode)
+			updateRainbow();
 		
-		glDisableClientState(GL_COLOR_ARRAY);
-		glDisableClientState(GL_VERTEX_ARRAY);
-
-		// Put the buffers back so we can continue putting stuff in them
-		linecoords.position(nv);
-		linecolors.position(nc);
-		
-		// Draw the actual marble
-		glPushMatrix();
-			if(rainbowMode)
-				updateRainbow();
-			glColor4f(colorValue[0], colorValue[1], colorValue[2], 1.0f);
-			glTranslatef(x, y, 0);
-
-			glEnable(GL_LIGHTING);
-			GLUT.glutSolidSphere(radius, 32, 32);
-
-			glDisable(GL_LIGHTING);
-		glPopMatrix();
-		
-		if(needClear) {
-			linecoords.position(0);
-			linecolors.position(0);
-			if(widthPerSegment)
-				linewidths.position(0);
-			needClear = false;
-		}
+		c.drawBitmap(m_drawBuffer, 0, 0, null);
+		c.drawCircle(x, y, radius, m_linePaint);
 	}
-	
+
 	public void accelerate(float x, float y, float z) {
 		xAccel += ((0.5f * y) - (4.472135955e-1 * ((1.26f * y) * (.1f / .5f))));
 		yAccel += ((0.5f * x) - (4.472135955e-1 * ((1.26f * x) * (.1f / .5f))));
-		// Acceleration - Coefficient of Rotational Friction * Normal Force * Force of Rolling Resistance
+		// Acceleration - Coefficient of Rotational Friction * Normal Force *
+		// Force of Rolling Resistance
 	}
-	
+
 	public void setPos(float x, float y) {
 		xAccel = yAccel = 0;
 		this.x = x;
 		this.y = y;
 	}
-	
+
 	public void update(int w, int h) {
 		float newx = x + xAccel;
 		float newy = y + yAccel;
@@ -141,92 +76,82 @@ public class Marble {
 
 		x += xAccel;
 		y += yAccel;
-		
-		if (Calc.distanceSquared(lastStoredX, lastStoredZ, x, y) > 750.0f)
-			addSegmentTo(x, y); 
-	}
-	
-	/**
-	 * This isn't so bad on memory as I initially thought
-	 */
-	private void addSegmentTo(float x, float y) {
-		if (!linecoords.hasRemaining())
-			linecoords = resize(linecoords);
 
-		linecoords.put(x).put(y);
-		
-		if (!linecolors.hasRemaining())
-			linecolors = resize(linecolors);
-		
-		linecolors.put(colorValue[0]);
-		linecolors.put(colorValue[1]);
-		linecolors.put(colorValue[2]);
-		linecolors.put(1.0f);
-			
-		if(widthPerSegment) {
-			if (!linewidths.hasRemaining())
-				linewidths = resize(linewidths);
+		if (Calc.distanceSquared(lastStoredX, lastStoredY, x, y) > 750.0f) {
+			m_drawCanvas.drawLine(lastStoredX, lastStoredY, x, y, m_linePaint);
 
-			linewidths.put(linewidth);
+			lastStoredX = x;
+			lastStoredY = y;
 		}
+	}
 
-		lastStoredX = x;
-		lastStoredZ = y;
-	}
-	
-	private FloatBuffer resize(FloatBuffer fb) {
-		Log.i(getClass().getName(), " ###### Resizing buffer " + fb + " ###### ");
-		float[] f = new float[fb.position()];
-		fb.position(0);
-		fb.get(f);
-		return Calc.alloc(f.length * 2).put(f);
-	}
-	
-	public void setColor(float r, float g, float b) {
+	public void setColor(int r, int g, int b) {
 		rainbowMode = false;
-		colorValue[0] = r;
-		colorValue[1] = g;
-		colorValue[2] = b;
+		m_linePaint.setARGB(0xFF, r, g, b);
 	}
-	
+
 	public void clear() {
-		needClear = true;
+		m_drawBuffer.eraseColor(0xFFFFFFFF);
 	}
-	
+
 	public void increaseSize() {
 		if (linewidth < 10.0f)
 			linewidth += 1.0f;
+		m_linePaint.setStrokeWidth(linewidth);
 	}
-	
+
 	public void decreaseSize() {
 		if (linewidth > 2.0f)
 			linewidth -= 1.0f;
+		m_linePaint.setStrokeWidth(linewidth);
 	}
-	
+
 	private void updateRainbow() {
-		//red
+		/*int a = colorpos & 0xff, b = (colorpos + 64) & 0xff, c = (colorpos + 128) & 0xff;
+		r1 = (int) (SIN_TBL[a] * 127 + 128);
+		g1 = (int) (SIN_TBL[b] * 127 + 128);
+		b1 = (int) (SIN_TBL[c] * 127 + 128);
+		m_linePaint.setARGB(0xFF, r1, g1, b1);
+		
+		colorpos++;
+		colorpos &= 0xff;
+		*/
+		
+		// red
 		if (counter == 0)
-			colorValue = new float[] { 1, 0, 0 };
-		//green
+			m_linePaint.setARGB(0xFF, 0xFF, 0x00, 0x00);
+		// green
 		else if (counter == 20)
-			colorValue = new float[] { 0, 1, 0 };
-		//blue
+			m_linePaint.setARGB(0xFF, 0x00, 0xFF, 0x00);
+		// blue
 		else if (counter == 40)
-			colorValue = new float[] { 0, 0, 1 };
-		//yellow
+			m_linePaint.setARGB(0xFF, 0x00, 0x00, 0xFF);
+		// yellow
 		else if (counter == 60)
-			colorValue = new float[] { 1, 1, 0 };
-		//orange
+			m_linePaint.setARGB(0xFF, 0xFF, 0xFF, 0x00);
+		// orange
 		else if (counter == 80)
-			colorValue = new float[] { 1, 0.5f, 0 };
-		//purple
+			m_linePaint.setARGB(0xFF, 0xFF, 0x7F, 0x00);
+		// purple
 		else if (counter == 100)
-			colorValue = new float[] { 0.5f, 0, 1 };
+			m_linePaint.setARGB(0xFF, 0x7F, 0x00, 0xFF);
 
 		counter = (counter + 1) % 120;
 	}
 
 	public void setRainbow(boolean b) {
 		rainbowMode = b;
+	}
+	
+	public void destroy() {
+		m_drawBuffer.recycle();
+	}
+	
+	static {
+		float dt = (float) Math.PI * 2.0f / 256.0f;
+		for(int k = 0; k < 256; k++) {
+			SIN_TBL[k] = (float) Math.sin(k * dt);
+			COS_TBL[k] = (float) Math.cos(k * dt);
+		}
 	}
 }

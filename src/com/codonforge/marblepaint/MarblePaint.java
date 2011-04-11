@@ -2,7 +2,6 @@ package com.codonforge.marblepaint;
 
 import static android.view.WindowManager.LayoutParams.FLAG_FULLSCREEN;
 import static android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON;
-import android.R.color;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -10,12 +9,12 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.text.SpannableString;
 import android.text.method.LinkMovementMethod;
 import android.text.util.Linkify;
 import android.view.MotionEvent;
+import android.view.SurfaceView;
 import android.view.View;
 import android.view.Window;
 import android.widget.TextView;
@@ -27,8 +26,8 @@ import com.google.ads.AdView;
 public class MarblePaint extends Activity implements SensorEventListener {
 	private static MarblePaint context;
 
-	private GLSurfaceView glSurface;
-	private GLRenderer glRenderer;
+	private SurfaceView surface;
+	private Renderer glRenderer;
 
 	private SensorManager sensorManager;
 	private Sensor accelerometer;
@@ -48,9 +47,9 @@ public class MarblePaint extends Activity implements SensorEventListener {
 
 		setContentView(R.layout.main);
 		
-		glRenderer = new GLRenderer();
-		glSurface = (GLSurfaceView) this.findViewById(R.id.glSurfaceView);
-		glSurface.setRenderer(glRenderer);
+		glRenderer = new Renderer();
+		surface = (SurfaceView) this.findViewById(R.id.surfaceView);
+		surface.getHolder().addCallback(glRenderer);
 		
 		AdView adView = (AdView) this.findViewById(R.id.ads);
 		adView.loadAd(new AdRequest());
