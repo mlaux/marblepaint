@@ -179,10 +179,10 @@ public class Renderer implements SurfaceHolder.Callback, Runnable {
 		settingstex = BitmapFactory.decodeResource(r, R.drawable.settings);
 
 		Bitmap uiTexture = BitmapFactory.decodeResource(r, R.drawable.ui);
-		colors = new Menu(new ColorMenuListener(), 0, h - 384, 384, 384, uiTexture);
+		colors = new Menu(new ColorMenuListener(), 0, h - 384, 384, Math.min(384, h - 64), uiTexture);
 
 		Bitmap settingsTexture = BitmapFactory.decodeResource(r, R.drawable.ui2);
-		settings = new Menu(new SettingsMenuListener(), 0, h - 384, 384, 384, settingsTexture);
+		settings = new Menu(new SettingsMenuListener(), 0, h - 384, 384, Math.min(384, h - 64), settingsTexture);
 		
 		m_renderThread = new Thread(this);
 		m_renderThread.start();
