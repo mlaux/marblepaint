@@ -68,8 +68,9 @@ public class Renderer implements SurfaceHolder.Callback, Runnable {
 
 
 	public void accelerate(float x, float y, float z) {
-		if (marble != null && !splash && !touch)
-			marble.accelerate(x, y, z);
+		if (marble != null && !splash && !touch) {
+			marble.accelerate(x, y);
+		}
 	}
 
 	public boolean handleTap(float x, float y) {
@@ -100,6 +101,10 @@ public class Renderer implements SurfaceHolder.Callback, Runnable {
 	
 	public boolean handleDrag(float x, float y) {
 		if(touch) {
+			if(x <= marble.getRadius()) x = 0;
+			if(y <= marble.getRadius()) y = 0;
+			if(x >= m_width - marble.getRadius()) x = m_width - marble.getRadius();
+			if(y >= m_height - marble.getRadius()) y = m_height - marble.getRadius();
 			marble.setPos(x, y);
 			return true;
 		}
@@ -174,15 +179,19 @@ public class Renderer implements SurfaceHolder.Callback, Runnable {
 			marble = new Marble(w / 2, h / 2, w, h);
 		
 		Resources r = MarblePaint.getContext().getResources();
+		
 		splashtex = BitmapFactory.decodeResource(r, R.drawable.splash);
 		rgbtex = BitmapFactory.decodeResource(r, R.drawable.rgb);
 		settingstex = BitmapFactory.decodeResource(r, R.drawable.settings);
 
 		Bitmap uiTexture = BitmapFactory.decodeResource(r, R.drawable.ui);
-		colors = new Menu(new ColorMenuListener(), 0, h - 384, 384, Math.min(384, h - 64), uiTexture);
-
 		Bitmap settingsTexture = BitmapFactory.decodeResource(r, R.drawable.ui2);
-		settings = new Menu(new SettingsMenuListener(), 0, h - 384, 384, Math.min(384, h - 64), settingsTexture);
+		
+		int mh = Math.min(384, h - 64);
+		int my = h - mh;
+		
+		colors = new Menu(new ColorMenuListener(), 0, my, mh, mh, uiTexture);
+		settings = new Menu(new SettingsMenuListener(), 0, my, mh, mh, settingsTexture);
 		
 		m_renderThread = new Thread(this);
 		m_renderThread.start();

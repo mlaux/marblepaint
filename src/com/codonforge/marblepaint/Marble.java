@@ -23,7 +23,6 @@ public class Marble {
 	
 	private Paint m_linePaint;
 	
-	private int r1, g1, b1;
 	private float[] colorValue;
 
 	public Marble(int x, int y, int sw, int sh) {
@@ -49,9 +48,9 @@ public class Marble {
 		c.drawCircle(x, y, radius, m_linePaint);
 	}
 
-	public void accelerate(float x, float y, float z) {
-		xAccel += ((0.5f * y) - (4.472135955e-1 * ((1.26f * y) * (.1f / .5f))));
-		yAccel += ((0.5f * x) - (4.472135955e-1 * ((1.26f * x) * (.1f / .5f))));
+	public void accelerate(float x, float y) {
+		xAccel += ((0.5f * x) - (4.472135955e-1 * ((1.26f * x) * (.1f / .5f))));
+		yAccel += ((0.5f * y) - (4.472135955e-1 * ((1.26f * y) * (.1f / .5f))));
 		// Acceleration - Coefficient of Rotational Friction * Normal Force *
 		// Force of Rolling Resistance
 	}
@@ -76,7 +75,7 @@ public class Marble {
 		x += xAccel;
 		y += yAccel;
 
-		if (Calc.distanceSquared(lastStoredX, lastStoredY, x, y) > 750.0f) {
+		if (distanceSquared(lastStoredX, lastStoredY, x, y) > 750.0f) {
 			m_drawCanvas.drawLine(lastStoredX, lastStoredY, x, y, m_linePaint);
 
 			lastStoredX = x;
@@ -137,5 +136,14 @@ public class Marble {
 	
 	public void destroy() {
 		m_drawBuffer.recycle();
+	}
+	
+	public float getRadius() {
+		return radius;
+	}
+	
+	private static float distanceSquared(float x1, float y1, float x2, float y2) {
+		float dx = x2 - x1, dy = y2 - y1;
+		return (dx * dx) + (dy * dy);
 	}
 }

@@ -24,12 +24,12 @@ import com.google.ads.AdRequest;
 import com.google.ads.AdView;
 
 public class MarblePaint extends Activity implements SensorEventListener {
-	private static final String VERSION = "1.2a";
+	private static final String VERSION = "1.2b";
 	
 	private static MarblePaint context;
 
 	private SurfaceView surface;
-	private Renderer glRenderer;
+	private Renderer renderer;
 
 	private SensorManager sensorManager;
 	private Sensor accelerometer;
@@ -49,9 +49,9 @@ public class MarblePaint extends Activity implements SensorEventListener {
 
 		setContentView(R.layout.main);
 		
-		glRenderer = new Renderer();
+		renderer = new Renderer();
 		surface = (SurfaceView) this.findViewById(R.id.surfaceView);
-		surface.getHolder().addCallback(glRenderer);
+		surface.getHolder().addCallback(renderer);
 		
 		AdView adView = (AdView) this.findViewById(R.id.ads);
 		adView.loadAd(new AdRequest());
@@ -98,7 +98,7 @@ public class MarblePaint extends Activity implements SensorEventListener {
 
 	public void onSensorChanged(SensorEvent event) {
 		float[] v = event.values;
-		glRenderer.accelerate(v[0], v[1], v[2]);
+		renderer.accelerate(v[1], v[0], v[2]);
 	}
 
 	public static final MarblePaint getContext() {
@@ -111,14 +111,14 @@ public class MarblePaint extends Activity implements SensorEventListener {
 	
 	public boolean onTouchEvent(MotionEvent e) {
 		if(e.getAction() == MotionEvent.ACTION_DOWN) {
-			if(glRenderer.getSplash()) {
-				glRenderer.setSplash(false);
+			if(renderer.getSplash()) {
+				renderer.setSplash(false);
 				return true;
 			} else {
-				return glRenderer.handleTap(e.getX(), e.getY());
+				return renderer.handleTap(e.getX(), e.getY());
 			}
 		} else if(e.getAction() == MotionEvent.ACTION_MOVE) {
-			return glRenderer.handleDrag(e.getX(), e.getY());
+			return renderer.handleDrag(e.getX(), e.getY());
 		}
 		return false;
 	}
