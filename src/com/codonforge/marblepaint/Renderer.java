@@ -101,8 +101,8 @@ public class Renderer implements SurfaceHolder.Callback, Runnable {
 	
 	public boolean handleDrag(float x, float y) {
 		if(touch) {
-			if(x <= marble.getRadius()) x = 0;
-			if(y <= marble.getRadius()) y = 0;
+			if(x <= marble.getRadius()) x = marble.getRadius();
+			if(y <= marble.getRadius()) y = marble.getRadius();
 			if(x >= m_width - marble.getRadius()) x = m_width - marble.getRadius();
 			if(y >= m_height - marble.getRadius()) y = m_height - marble.getRadius();
 			marble.setPos(x, y);
