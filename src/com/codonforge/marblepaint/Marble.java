@@ -19,6 +19,7 @@ public class Marble {
 	private float linewidth;
 
 	private boolean rainbowMode;
+	private boolean makeTrail;
 	
 	private Bitmap m_marbleImage;
 
@@ -63,14 +64,17 @@ public class Marble {
 	}
 
 	public void accelerate(float x, float y) {
-		xAccel += ((0.5f * x) - (4.472135955e-1 * ((1.26f * x) * (.1f / .5f))));
-		yAccel += ((0.5f * y) - (4.472135955e-1 * ((1.26f * y) * (.1f / .5f))));
+		xAccel += ((0.5f * x) - (4.472135955e-1 * ((1.26f * x) * (0.1f / 0.5f))));
+		yAccel += ((0.5f * y) - (4.472135955e-1 * ((1.26f * y) * (0.1f / 0.5f))));
 		// Acceleration - Coefficient of Rotational Friction * Normal Force *
 		// Force of Rolling Resistance
 	}
 
-	public void setPos(float x, float y) {
-		xAccel = yAccel = 0;
+	public void setPos(float x, float y, int w, int h) {
+		if(x <= radius) x = radius;
+		if(y <= radius) y = radius;
+		if(x >= w - radius) x = w - radius;
+		if(y >= h - radius) y = h - radius;
 		this.x = x;
 		this.y = y;
 	}
@@ -89,12 +93,11 @@ public class Marble {
 		x += xAccel;
 		y += yAccel;
 
-		if (distanceSquared(lastStoredX, lastStoredY, x, y) > 750.0f) {
+		if(makeTrail)
 			m_drawCanvas.drawLine(lastStoredX, lastStoredY, x, y, m_linePaint);
 
-			lastStoredX = x;
-			lastStoredY = y;
-		}
+		lastStoredX = x;
+		lastStoredY = y;
 	}
 
 	public void setColor(int r, int g, int b) {
@@ -161,8 +164,21 @@ public class Marble {
 		return radius;
 	}
 	
-	private static float distanceSquared(float x1, float y1, float x2, float y2) {
-		float dx = x2 - x1, dy = y2 - y1;
-		return (dx * dx) + (dy * dy);
+	public void startDrag(float x2, float y2, int w, int h) {
+		setPos(x2, y2, w, h);
+		lastStoredX = x2;
+		lastStoredY = y2;
+	}
+	
+	public void setMakeTrail(boolean b) {
+		makeTrail = b;
+	}
+	
+	public boolean isMakingTrail() {
+		return makeTrail;
+	}
+	
+	public void stop() {
+		xAccel = yAccel = 0;
 	}
 }

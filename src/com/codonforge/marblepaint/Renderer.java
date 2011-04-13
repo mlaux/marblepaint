@@ -1,9 +1,7 @@
 package com.codonforge.marblepaint;
 
 import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
+import android.graphics.*;
 import android.view.SurfaceHolder;
 
 public class Renderer implements SurfaceHolder.Callback, Runnable {
@@ -24,7 +22,16 @@ public class Renderer implements SurfaceHolder.Callback, Runnable {
 	private Menu colors;
 	private Menu settings;
 	
+	private Paint m_paint;
+	private int m_baseX;
+	private float[] m_color = { 0.0f, 1.0f, 1.0f };
+	
 	private boolean running;
+	
+	public Renderer() {
+		m_paint = new Paint();
+		m_paint.setTextSize(20.0f);
+	}
 	
 	public void run() {
 		running = true;
@@ -49,6 +56,15 @@ public class Renderer implements SurfaceHolder.Callback, Runnable {
 		c.drawColor(0xFFFFFFFF);
 		
 		if (splash) {
+			for(int k = -200 + m_baseX; k < m_width; k += 20) {
+				m_paint.setColor(Color.HSVToColor(m_color));
+				c.drawLine(k + 200, 0, k, m_height, m_paint);
+			}
+			m_color[0] = (m_color[0] + 1.0f) % 360.0f;
+			m_baseX = (m_baseX + 1) % 20;
+			
+			m_paint.setColor(Color.LTGRAY);
+			c.drawText(MarblePaint.VERSION, 0, m_height - 5, m_paint);
 			RectTool.render(c, splashtex, m_width / 2 - 256, m_height / 2 - 128, 512, 512);
 			return;
 		}
@@ -74,6 +90,11 @@ public class Renderer implements SurfaceHolder.Callback, Runnable {
 	}
 
 	public boolean handleTap(float x, float y) {
+		if(splash) {
+			splash = false;
+			return true;
+		}
+		
 		if (colors.isVisible()) {
 			if (x > 384 && x < 384 + 64 && y > m_height - 64 && y < m_height) {
 				colors.setVisible(false);
@@ -93,24 +114,28 @@ public class Renderer implements SurfaceHolder.Callback, Runnable {
 			} else if (x > 64 && x < 128 && y > m_height - 64 && y < m_height) {
 				settings.setVisible(true);
 				return true;
+			} else {
+				if(touch) {
+					marble.startDrag(x, y, m_width, m_height);
+				} else { 
+					marble.setMakeTrail(false);
+					marble.setPos(x, y, m_width, m_height);
+				}
+				return true;
 			}
 		}
-
-		return false;
 	}
 	
 	public boolean handleDrag(float x, float y) {
-		if(touch) {
-			if(x <= marble.getRadius()) x = marble.getRadius();
-			if(y <= marble.getRadius()) y = marble.getRadius();
-			if(x >= m_width - marble.getRadius()) x = m_width - marble.getRadius();
-			if(y >= m_height - marble.getRadius()) y = m_height - marble.getRadius();
-			marble.setPos(x, y);
-			return true;
-		}
-		return false;
+		marble.setPos(x, y, m_width, m_height);
+		return true;
 	}
 
+	public boolean handleRelease(float x, float y) {
+		if(!touch) marble.setMakeTrail(true);
+		return true;
+	}
+	
 	public void setSplash(boolean b) {
 		splash = b;
 	}
@@ -145,6 +170,7 @@ public class Renderer implements SurfaceHolder.Callback, Runnable {
 					touch = false;
 					break;
 				case 1: 
+					marble.stop();
 					touch = true;
 					break;
 				case 2: // save

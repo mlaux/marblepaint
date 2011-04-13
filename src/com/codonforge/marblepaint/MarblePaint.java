@@ -24,7 +24,7 @@ import com.google.ads.AdRequest;
 import com.google.ads.AdView;
 
 public class MarblePaint extends Activity implements SensorEventListener {
-	private static final String VERSION = "1.2b";
+	public static final String VERSION = "1.3a";
 	
 	private static MarblePaint context;
 
@@ -123,14 +123,11 @@ public class MarblePaint extends Activity implements SensorEventListener {
 	
 	public boolean onTouchEvent(MotionEvent e) {
 		if(e.getAction() == MotionEvent.ACTION_DOWN) {
-			if(renderer.getSplash()) {
-				renderer.setSplash(false);
-				return true;
-			} else {
-				return renderer.handleTap(e.getX(), e.getY());
-			}
+			return renderer.handleTap(e.getX(), e.getY());
 		} else if(e.getAction() == MotionEvent.ACTION_MOVE) {
 			return renderer.handleDrag(e.getX(), e.getY());
+		} else if(e.getAction() == MotionEvent.ACTION_UP) {
+			return renderer.handleRelease(e.getX(), e.getY());
 		}
 		return false;
 	}
