@@ -61,12 +61,18 @@ public class MarblePaint extends Activity implements SensorEventListener {
 		final TextView aboutMessage = new TextView(this);
 		final TextView helpMessage = new TextView(this);
 		
-		final SpannableString a = new SpannableString("Created by Codonforge\nProgramming by Matt Laux\nArt and Physics by Jeff Bell\nhttp://www.codonforge.com");
+		final SpannableString a = new SpannableString("Created by Codonforge\n" +
+				"Programming by Matt Laux\n" +
+				"Art and Physics by Jeff Bell\n" +
+				"http://www.codonforge.com");
 		Linkify.addLinks(a, Linkify.WEB_URLS);
 		aboutMessage.setText(a);
 		aboutMessage.setMovementMethod(LinkMovementMethod.getInstance());
 		
-		String h = "Tilt your phone to move the ball\nClick the wrench for settings\nClick the three balls for marble options\nChose the touch option to drag the ball";
+		String h = "Tilt your phone to move the marble.\n" +
+				"Tap the wrench for settings.\n" +
+				"Tap the three marbles for marble options.\n" +
+				"Chose the touch option to drag the marble.";
 		helpMessage.setText(h);
 
 		about = makeDialog(aboutMessage, "About MarblePaint (v" + VERSION + ")");
@@ -88,7 +94,10 @@ public class MarblePaint extends Activity implements SensorEventListener {
 
 	protected void onResume() {
 		super.onResume();
-		sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME);
+		if(!sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME)) {
+			// TODO Inform the user that the accelerometer isn't supported and
+			// make touch the default for them
+		}
 	}
 
 	protected void onPause() {
@@ -98,7 +107,10 @@ public class MarblePaint extends Activity implements SensorEventListener {
 
 	public void onSensorChanged(SensorEvent event) {
 		float[] v = event.values;
-		renderer.accelerate(v[1], v[0], v[2]);
+		float x = v[1], y = v[0], z = v[2];
+		if(x * x + y * y + z * z > 400) {
+			renderer.requestClear();
+		} else renderer.accelerate(x, y, z);
 	}
 
 	public static final MarblePaint getContext() {

@@ -1,9 +1,11 @@
 package com.codonforge.marblepaint;
 
 import android.graphics.*;
+import android.graphics.Paint.Cap;
+import android.graphics.Paint.Join;
 
 public class Marble {
-	private static final float radius = 25.0f;
+	private static final int radius = 25;
 
 	private float x;
 	private float y;
@@ -17,17 +19,23 @@ public class Marble {
 	private float linewidth;
 
 	private boolean rainbowMode;
+	
+	private Bitmap m_marbleImage;
 
 	private Bitmap m_drawBuffer;
 	private Canvas m_drawCanvas;
 	
 	private Paint m_linePaint;
+	private Paint m_ballPaint;
 	
 	private float[] colorValue;
 
 	public Marble(int x, int y, int sw, int sh) {
 		this.x = this.lastStoredX = x;
 		this.y = this.lastStoredY = y;
+		
+		m_marbleImage = BitmapFactory.decodeResource(MarblePaint.getContext().getResources(), R.drawable.marble);
+		m_marbleImage = Bitmap.createScaledBitmap(m_marbleImage, radius * 2, radius * 2, false);
 
 		m_drawBuffer = Bitmap.createBitmap(sw, sh, Bitmap.Config.ARGB_8888);
 		m_drawCanvas = new Canvas(m_drawBuffer);
@@ -38,6 +46,12 @@ public class Marble {
 		m_linePaint = new Paint();
 		m_linePaint.setARGB(0xFF, 0x00, 0x00, 0x00);
 		m_linePaint.setStrokeWidth(linewidth);
+		m_linePaint.setStrokeCap(Cap.ROUND);
+		m_linePaint.setStrokeJoin(Join.ROUND);
+		
+		m_ballPaint = new Paint();
+		m_ballPaint.setARGB(0xFF, 0x00, 0x00, 0x00);
+		m_ballPaint.setColorFilter(new LightingColorFilter(0, 0));
 	}
 
 	public void render(Canvas c) {
@@ -45,7 +59,7 @@ public class Marble {
 			updateRainbow();
 		
 		c.drawBitmap(m_drawBuffer, 0, 0, null);
-		c.drawCircle(x, y, radius, m_linePaint);
+		c.drawBitmap(m_marbleImage, x - radius, y - radius, m_ballPaint);
 	}
 
 	public void accelerate(float x, float y) {
@@ -85,7 +99,10 @@ public class Marble {
 
 	public void setColor(int r, int g, int b) {
 		rainbowMode = false;
-		m_linePaint.setARGB(0xFF, r, g, b);
+		int col = (0xFF << 24) | (r << 16) | (g << 8) | b;
+		m_linePaint.setColor(col);
+		
+		m_ballPaint.setColorFilter(new LightingColorFilter(col, 0));
 	}
 
 	public void clear() {
@@ -105,7 +122,9 @@ public class Marble {
 	}
 
 	private void updateRainbow() {
-		m_linePaint.setColor(Color.HSVToColor(colorValue));
+		int c = Color.HSVToColor(colorValue);
+		m_linePaint.setColor(c);
+		m_ballPaint.setColorFilter(new LightingColorFilter(c, 0));
 		
 		colorValue[0] = (colorValue[0] + 1.0f) % 360.0f;
 	/*	// red

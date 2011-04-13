@@ -207,4 +207,8 @@ public class Renderer implements SurfaceHolder.Callback, Runnable {
 			m_renderThread.join();
 		} catch (InterruptedException e) { }
 	}
+
+	public void requestClear() {
+		marble.clear();
+	}
 }
