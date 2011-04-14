@@ -64,6 +64,7 @@ public class Marble {
 	}
 
 	public void accelerate(float x, float y) {
+		if(!makeTrail) return;
 		xAccel += ((0.5f * x) - (4.472135955e-1 * ((1.26f * x) * (0.1f / 0.5f))));
 		yAccel += ((0.5f * y) - (4.472135955e-1 * ((1.26f * y) * (0.1f / 0.5f))));
 		// Acceleration - Coefficient of Rotational Friction * Normal Force *

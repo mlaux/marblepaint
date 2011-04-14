@@ -24,7 +24,7 @@ import com.google.ads.AdRequest;
 import com.google.ads.AdView;
 
 public class MarblePaint extends Activity implements SensorEventListener {
-	public static final String VERSION = "1.3a";
+	public static final String VERSION = "1.3b";
 	
 	private static MarblePaint context;
 
