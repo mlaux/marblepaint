@@ -1,5 +1,7 @@
 package com.codonforge.marblepaint;
 
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.content.res.Resources;
 import android.graphics.*;
 import android.view.SurfaceHolder;
@@ -164,6 +166,7 @@ public class Renderer implements SurfaceHolder.Callback, Runnable {
 	}
 	
 	class SettingsMenuListener implements MenuListener {
+		String filename = "";
 		public void onAction(int id) {
 			switch(id) {
 				case 0:
@@ -174,7 +177,13 @@ public class Renderer implements SurfaceHolder.Callback, Runnable {
 					touch = true;
 					break;
 				case 2: // save
-					MarblePaint.getContext().alert("Coming soon!");
+					MarblePaint.getContext().makeInput("Enter a name to save file as.", "Save as...", new OnClickListener() {
+						public void onClick(DialogInterface dialog, int which) {
+							filename = MarblePaint.getContext().input.getText().toString();
+							marble.save(filename);
+							MarblePaint.getContext().alert("File Saved!");	
+						}
+					});
 					break;
 				case 3: // load
 					MarblePaint.getContext().alert("Coming soon!");

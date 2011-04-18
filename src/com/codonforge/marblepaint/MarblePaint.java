@@ -4,7 +4,9 @@ import static android.view.WindowManager.LayoutParams.FLAG_FULLSCREEN;
 import static android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -17,6 +19,7 @@ import android.view.MotionEvent;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.Window;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,6 +39,8 @@ public class MarblePaint extends Activity implements SensorEventListener {
 	
 	private	AlertDialog about;
 	private	AlertDialog help;
+	
+	public EditText input;
 	
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -78,6 +83,8 @@ public class MarblePaint extends Activity implements SensorEventListener {
 		about = makeDialog(aboutMessage, "About MarblePaint (v" + VERSION + ")");
 		
 		help = makeDialog(helpMessage, "Help");
+				
+
 	}
 	
 	private AlertDialog makeDialog(View text, String title) {
@@ -91,6 +98,8 @@ public class MarblePaint extends Activity implements SensorEventListener {
 		});
 		return builder.create();
 	}
+	
+
 
 	protected void onResume() {
 		super.onResume();
@@ -103,6 +112,27 @@ public class MarblePaint extends Activity implements SensorEventListener {
 	protected void onPause() {
 		super.onPause();
 		sensorManager.unregisterListener(this);
+	}	
+	
+	public void makeInput(String text, String title, OnClickListener click) {
+		input = new EditText(context);
+		AlertDialog dialog;
+		
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setTitle(title);
+		builder.setMessage(text);
+		
+		builder.setView(input);
+
+		builder.setPositiveButton("Ok", click);
+
+		builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+		  public void onClick(DialogInterface dialog, int whichButton) {
+			 dialog.dismiss();
+		  }
+		});
+		dialog = builder.create();
+		dialog.show();
 	}
 
 	public void onSensorChanged(SensorEvent event) {

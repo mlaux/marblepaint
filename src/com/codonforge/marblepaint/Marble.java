@@ -1,6 +1,13 @@
 package com.codonforge.marblepaint;
 
-import android.graphics.*;
+import java.io.FileOutputStream;
+
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.LightingColorFilter;
+import android.graphics.Paint;
 import android.graphics.Paint.Cap;
 import android.graphics.Paint.Join;
 
@@ -181,5 +188,14 @@ public class Marble {
 	
 	public void stop() {
 		xAccel = yAccel = 0;
+	}
+	
+	public void save(String f) {
+		try {
+		       FileOutputStream out = new FileOutputStream("/sdcard/Pictures/MarblePaint/" + f);
+		       m_marbleImage.compress(Bitmap.CompressFormat.PNG, 90, out);
+		} catch (Exception e) {
+		       e.printStackTrace();
+		}
 	}
 }
