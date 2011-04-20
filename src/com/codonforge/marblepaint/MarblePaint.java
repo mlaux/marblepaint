@@ -2,16 +2,21 @@ package com.codonforge.marblepaint;
 
 import static android.view.WindowManager.LayoutParams.FLAG_FULLSCREEN;
 import static android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON;
+
+import java.io.InputStream;
+
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
+import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.text.SpannableString;
 import android.text.method.LinkMovementMethod;
 import android.text.util.Linkify;
@@ -27,7 +32,7 @@ import com.google.ads.AdRequest;
 import com.google.ads.AdView;
 
 public class MarblePaint extends Activity implements SensorEventListener {
-	public static final String VERSION = "1.3b";
+	public static final String VERSION = "1.5b";
 	
 	private static MarblePaint context;
 
@@ -40,7 +45,7 @@ public class MarblePaint extends Activity implements SensorEventListener {
 	private	AlertDialog about;
 	private	AlertDialog help;
 	
-	public EditText input;
+	private EditText input;
 	
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -83,8 +88,6 @@ public class MarblePaint extends Activity implements SensorEventListener {
 		about = makeDialog(aboutMessage, "About MarblePaint (v" + VERSION + ")");
 		
 		help = makeDialog(helpMessage, "Help");
-				
-
 	}
 	
 	private AlertDialog makeDialog(View text, String title) {
@@ -98,8 +101,6 @@ public class MarblePaint extends Activity implements SensorEventListener {
 		});
 		return builder.create();
 	}
-	
-
 
 	protected void onResume() {
 		super.onResume();
@@ -115,7 +116,7 @@ public class MarblePaint extends Activity implements SensorEventListener {
 	}	
 	
 	public void makeInput(String text, String title, OnClickListener click) {
-		input = new EditText(context);
+		input = new EditText(this);
 		AlertDialog dialog;
 		
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -127,10 +128,11 @@ public class MarblePaint extends Activity implements SensorEventListener {
 		builder.setPositiveButton("Ok", click);
 
 		builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-		  public void onClick(DialogInterface dialog, int whichButton) {
-			 dialog.dismiss();
+		  public void onClick(DialogInterface dlg, int whichButton) {
+			 dlg.dismiss();
 		  }
 		});
+		
 		dialog = builder.create();
 		dialog.show();
 	}
@@ -171,5 +173,35 @@ public class MarblePaint extends Activity implements SensorEventListener {
 	}
 	public void showHelp() {
 		help.show();
+	}
+	
+	public EditText getInput() {
+		return input;
+	}
+	
+	public void showGallery() {
+		startActivityForResult(new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI), 0xCAFE);
+	}
+
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		if (requestCode == 0xCAFE) {
+			if (resultCode == Activity.RESULT_OK) {
+				Uri selectedImage = data.getData();
+				try {
+					InputStream in = getContentResolver().openInputStream(selectedImage);
+					renderer.loadBackground(in);
+					in.close();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+
+	public void vibrate() {
+		Vibrator v = (Vibrator) getSystemService(VIBRATOR_SERVICE);
+		if(v != null)
+			v.vibrate(100);
 	}
 }

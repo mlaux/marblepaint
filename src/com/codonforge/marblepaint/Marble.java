@@ -1,15 +1,14 @@
 package com.codonforge.marblepaint;
 
+import java.io.File;
 import java.io.FileOutputStream;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.LightingColorFilter;
-import android.graphics.Paint;
+import android.graphics.*;
 import android.graphics.Paint.Cap;
 import android.graphics.Paint.Join;
+import android.media.MediaScannerConnection;
+import android.net.Uri;
+import android.os.Environment;
 
 public class Marble {
 	private static final int radius = 25;
@@ -47,6 +46,8 @@ public class Marble {
 
 		m_drawBuffer = Bitmap.createBitmap(sw, sh, Bitmap.Config.ARGB_8888);
 		m_drawCanvas = new Canvas(m_drawBuffer);
+
+		clear();
 		
 		linewidth = 4.0f;
 		colorValue = new float[] { 0.0f, 1.0f, 1.0f };
@@ -138,26 +139,6 @@ public class Marble {
 		m_ballPaint.setColorFilter(new LightingColorFilter(c, 0));
 		
 		colorValue[0] = (colorValue[0] + 1.0f) % 360.0f;
-	/*	// red
-		if (counter == 0)
-			m_linePaint.setARGB(0xFF, 0xFF, 0x00, 0x00);
-		// green
-		else if (counter == 20)
-			m_linePaint.setARGB(0xFF, 0x00, 0xFF, 0x00);
-		// blue
-		else if (counter == 40)
-			m_linePaint.setARGB(0xFF, 0x00, 0x00, 0xFF);
-		// yellow
-		else if (counter == 60)
-			m_linePaint.setARGB(0xFF, 0xFF, 0xFF, 0x00);
-		// orange
-		else if (counter == 80)
-			m_linePaint.setARGB(0xFF, 0xFF, 0x7F, 0x00);
-		// purple
-		else if (counter == 100)
-			m_linePaint.setARGB(0xFF, 0x7F, 0x00, 0xFF);
-
-		counter = (counter + 1) % 120; */
 	}
 
 	public void setRainbow(boolean b) {
@@ -190,12 +171,59 @@ public class Marble {
 		xAccel = yAccel = 0;
 	}
 	
-	public void save(String f) {
+	public void load(Bitmap bitmap) {
+		if(bitmap == null)
+			return;
+		int x = m_drawBuffer.getWidth() / 2 - bitmap.getWidth() / 2;
+		int y = m_drawBuffer.getHeight() / 2 - bitmap.getHeight() / 2;
+		m_drawCanvas.drawBitmap(bitmap, x, y, null);
+	}
+	
+	public void save(String name) {
 		try {
-		       FileOutputStream out = new FileOutputStream("/sdcard/Pictures/MarblePaint/" + f);
-		       m_marbleImage.compress(Bitmap.CompressFormat.PNG, 90, out);
+			String path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Pictures/MarblePaint/";
+			File dir = new File(path);
+			
+			if(!dir.exists() && !dir.mkdirs()) {
+				MarblePaint.getContext().alert("Error creating MarblePaint pictures folder");
+				return;
+			}
+			if (!name.endsWith(".png"))
+				name += ".png";
+			FileOutputStream out = new FileOutputStream(new File(dir, name));
+			m_drawBuffer.compress(Bitmap.CompressFormat.PNG, 100, out);
+			
+			MarblePaint.getContext().alert("Saved to " + path + name);
+			
+			MediaConnectionClient client = new MediaConnectionClient(path + name);
+			MediaScannerConnection mc = new MediaScannerConnection(MarblePaint.getContext(), client);
+			client.setScanner(mc);
+			
+			mc.connect();
 		} catch (Exception e) {
-		       e.printStackTrace();
+			MarblePaint.getContext().alert(e.toString());
+			e.printStackTrace();
+		}
+	}
+	
+	static class MediaConnectionClient implements MediaScannerConnection.MediaScannerConnectionClient {
+		private String filename;
+		private MediaScannerConnection scanner;
+		
+		public MediaConnectionClient(String fn) {
+			filename = fn;
+		}
+		
+		private void setScanner(MediaScannerConnection con) {
+			scanner = con;
+		}
+		
+		public void onMediaScannerConnected() {
+			scanner.scanFile(filename, null);
+		}
+		
+		public void onScanCompleted(String path, Uri uri) {
+			scanner.disconnect();
 		}
 	}
 }

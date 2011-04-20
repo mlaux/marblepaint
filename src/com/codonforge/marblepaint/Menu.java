@@ -1,9 +1,11 @@
 package com.codonforge.marblepaint;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.view.View;
 import android.graphics.Rect;
+import android.os.Vibrator;
+import android.view.View;
 
 public class Menu {
 	private static final int ITEMS_PER_ROW = 4;
@@ -49,6 +51,7 @@ public class Menu {
 		int row = (int) (((float) y / height) * ITEMS_PER_COL);
 		int col = (int) (((float) x / width)  * ITEMS_PER_ROW);
 		
+		MarblePaint.getContext().vibrate();
 		listener.onAction((row * ITEMS_PER_ROW) + col);
 		return true;
 	}

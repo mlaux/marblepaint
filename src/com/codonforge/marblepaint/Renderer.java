@@ -1,5 +1,7 @@
 package com.codonforge.marblepaint;
 
+import java.io.InputStream;
+
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.res.Resources;
@@ -86,7 +88,7 @@ public class Renderer implements SurfaceHolder.Callback, Runnable {
 
 
 	public void accelerate(float x, float y, float z) {
-		if (marble != null && !splash && !touch) {
+		if (marble != null && !splash && !touch && marble.isMakingTrail()) {
 			marble.accelerate(x, y);
 		}
 	}
@@ -97,23 +99,17 @@ public class Renderer implements SurfaceHolder.Callback, Runnable {
 			return true;
 		}
 		
-		if (colors.isVisible()) {
-			if (x > 384 && x < 384 + 64 && y > m_height - 64 && y < m_height) {
-				colors.setVisible(false);
-				return true;
-			}
+		if (colors.isVisible())
 			return colors.handleClick((int) x, (int) y);
-		} else if (settings.isVisible()) {
-			if (x > 384 && x < 384 + 64 && y > m_height - 64 && y < m_height) {
-				settings.setVisible(false);
-				return true;
-			}
+		else if (settings.isVisible())
 			return settings.handleClick((int) x, (int) y);
-		} else {
+		else {
 			if (x > 0 && x < 64 && y > m_height - 64 && y < m_height) {
+				MarblePaint.getContext().vibrate();
 				colors.setVisible(true);
 				return true;
 			} else if (x > 64 && x < 128 && y > m_height - 64 && y < m_height) {
+				MarblePaint.getContext().vibrate();
 				settings.setVisible(true);
 				return true;
 			} else {
@@ -179,14 +175,13 @@ public class Renderer implements SurfaceHolder.Callback, Runnable {
 				case 2: // save
 					MarblePaint.getContext().makeInput("Enter a name to save file as.", "Save as...", new OnClickListener() {
 						public void onClick(DialogInterface dialog, int which) {
-							filename = MarblePaint.getContext().input.getText().toString();
+							filename = MarblePaint.getContext().getInput().getText().toString();
 							marble.save(filename);
-							MarblePaint.getContext().alert("File Saved!");	
 						}
 					});
 					break;
 				case 3: // load
-					MarblePaint.getContext().alert("Coming soon!");
+					MarblePaint.getContext().showGallery();
 					break;
 				case 4: // about
 					MarblePaint.getContext().showAbout();
@@ -245,5 +240,9 @@ public class Renderer implements SurfaceHolder.Callback, Runnable {
 
 	public void requestClear() {
 		marble.clear();
+	}
+
+	public void loadBackground(InputStream inputStream) throws Exception {
+		marble.load(BitmapScaler.decodeFile(inputStream, Math.min(m_width, m_height)));
 	}
 }
