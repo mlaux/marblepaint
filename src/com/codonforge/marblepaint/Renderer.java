@@ -18,6 +18,7 @@ public class Renderer implements SurfaceHolder.Callback, Runnable {
 	private boolean splash = true;
 	private boolean touch = false;
 	private Bitmap splashtex;
+	private Bitmap logotex;
 
 	private Bitmap rgbtex;
 	private Bitmap settingstex;
@@ -35,6 +36,7 @@ public class Renderer implements SurfaceHolder.Callback, Runnable {
 	public Renderer() {
 		m_paint = new Paint();
 		m_paint.setTextSize(20.0f);
+		m_paint.setStrokeWidth(12.5f);
 	}
 	
 	public void run() {
@@ -53,6 +55,13 @@ public class Renderer implements SurfaceHolder.Callback, Runnable {
 					m_surfaceHolder.unlockCanvasAndPost(c);
 				}
 			}
+
+			try {
+				Thread.sleep(10);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 	
@@ -60,16 +69,21 @@ public class Renderer implements SurfaceHolder.Callback, Runnable {
 		c.drawColor(0xFFFFFFFF);
 		
 		if (splash) {
-			for(int k = -200 + m_baseX; k < m_width; k += 20) {
+			m_color[1] = 0.1f;
+			c.drawColor(Color.HSVToColor(m_color));
+			
+			for(int k = -200 + m_baseX; k < m_width; k += 50) {
+				m_color[1] = 0.25f;
 				m_paint.setColor(Color.HSVToColor(m_color));
 				c.drawLine(k + 200, 0, k, m_height, m_paint);
 			}
 			m_color[0] = (m_color[0] + 1.0f) % 360.0f;
-			m_baseX = (m_baseX + 1) % 20;
+			m_baseX = (m_baseX + 1) % 50;
 			
 			m_paint.setColor(Color.LTGRAY);
 			c.drawText(MarblePaint.VERSION, 0, m_height - 5, m_paint);
 			RectTool.render(c, splashtex, m_width / 2 - 256, m_height / 2 - 128, 512, 512);
+			RectTool.render(c, logotex, m_width - 200, m_height - 35, 200, 35);
 			return;
 		}
 
@@ -117,6 +131,7 @@ public class Renderer implements SurfaceHolder.Callback, Runnable {
 					marble.startDrag(x, y, m_width, m_height);
 				} else { 
 					marble.setMakeTrail(false);
+					marble.stop();
 					marble.setPos(x, y, m_width, m_height);
 				}
 				return true;
@@ -211,6 +226,7 @@ public class Renderer implements SurfaceHolder.Callback, Runnable {
 		Resources r = MarblePaint.getContext().getResources();
 		
 		splashtex = BitmapFactory.decodeResource(r, R.drawable.splash);
+		logotex = BitmapFactory.decodeResource(r, R.drawable.codonforge);
 		rgbtex = BitmapFactory.decodeResource(r, R.drawable.rgb);
 		settingstex = BitmapFactory.decodeResource(r, R.drawable.settings);
 
@@ -244,5 +260,14 @@ public class Renderer implements SurfaceHolder.Callback, Runnable {
 
 	public void loadBackground(InputStream inputStream) throws Exception {
 		marble.load(BitmapScaler.decodeFile(inputStream, Math.min(m_width, m_height)));
+	}
+	
+	public boolean isTouch() {
+		return touch;
+	}
+
+	public void setTouch(boolean b) {
+		marble.stop();
+		touch = b;
 	}
 }

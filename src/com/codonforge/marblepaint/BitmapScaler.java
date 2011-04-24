@@ -20,8 +20,7 @@ public class BitmapScaler {
 		BitmapFactory.Options o = new BitmapFactory.Options();
 		o.inJustDecodeBounds = true;
 
-		BitmapFactory.decodeStream(
-				new ByteArrayInputStream(baos.toByteArray()), null, o);
+		BitmapFactory.decodeStream(new ByteArrayInputStream(baos.toByteArray()), null, o);
 
 		int scale = 1;
 		if (o.outHeight > w || o.outWidth > w) {
@@ -32,8 +31,7 @@ public class BitmapScaler {
 		// Decode with inSampleSize
 		BitmapFactory.Options o2 = new BitmapFactory.Options();
 		o2.inSampleSize = scale;
-		return BitmapFactory.decodeStream(
-				new ByteArrayInputStream(baos.toByteArray()), null, o2);
+		return BitmapFactory.decodeStream(new ByteArrayInputStream(baos.toByteArray()), null, o2);
 	}
 
 }

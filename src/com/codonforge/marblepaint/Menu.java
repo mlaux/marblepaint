@@ -1,10 +1,8 @@
 package com.codonforge.marblepaint;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Rect;
-import android.os.Vibrator;
 import android.view.View;
 
 public class Menu {

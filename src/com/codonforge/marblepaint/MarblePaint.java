@@ -32,7 +32,7 @@ import com.google.ads.AdRequest;
 import com.google.ads.AdView;
 
 public class MarblePaint extends Activity implements SensorEventListener {
-	public static final String VERSION = "1.5b";
+	public static final String VERSION = "1.5c";
 	
 	private static MarblePaint context;
 
@@ -46,6 +46,8 @@ public class MarblePaint extends Activity implements SensorEventListener {
 	private	AlertDialog help;
 	
 	private EditText input;
+	
+	private boolean touchState;
 	
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -105,8 +107,7 @@ public class MarblePaint extends Activity implements SensorEventListener {
 	protected void onResume() {
 		super.onResume();
 		if(!sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME)) {
-			// TODO Inform the user that the accelerometer isn't supported and
-			// make touch the default for them
+			renderer.setTouch(true);
 		}
 	}
 
@@ -128,12 +129,15 @@ public class MarblePaint extends Activity implements SensorEventListener {
 		builder.setPositiveButton("Ok", click);
 
 		builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-		  public void onClick(DialogInterface dlg, int whichButton) {
-			 dlg.dismiss();
-		  }
+			public void onClick(DialogInterface dlg, int whichButton) {
+				renderer.setTouch(touchState);
+				dlg.dismiss();
+			}
 		});
-		
+
 		dialog = builder.create();
+		touchState = renderer.isTouch();
+		renderer.setTouch(true);
 		dialog.show();
 	}
 
