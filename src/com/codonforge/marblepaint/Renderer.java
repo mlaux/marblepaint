@@ -255,7 +255,8 @@ public class Renderer implements SurfaceHolder.Callback, Runnable {
 	}
 
 	public void requestClear() {
-		marble.clear();
+		if(marble != null)
+			marble.clear();
 	}
 
 	public void loadBackground(InputStream inputStream) throws Exception {
