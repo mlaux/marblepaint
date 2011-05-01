@@ -22,6 +22,7 @@ public class Renderer implements SurfaceHolder.Callback, Runnable {
 
 	private Bitmap rgbtex;
 	private Bitmap settingstex;
+	private Bitmap helptex;
 
 	private Marble marble;
 	private Menu colors;
@@ -97,6 +98,7 @@ public class Renderer implements SurfaceHolder.Callback, Runnable {
 		else {
 			RectTool.render(c, rgbtex, 0, m_height - 64, 64, 64);
 			RectTool.render(c, settingstex, 64, m_height - 64, 64, 64);
+			RectTool.render(c, helptex, m_width - 32, 0, 64, 64);
 		}
 	}
 
@@ -229,6 +231,7 @@ public class Renderer implements SurfaceHolder.Callback, Runnable {
 		logotex = BitmapFactory.decodeResource(r, R.drawable.codonforge);
 		rgbtex = BitmapFactory.decodeResource(r, R.drawable.rgb);
 		settingstex = BitmapFactory.decodeResource(r, R.drawable.settings);
+		helptex = BitmapFactory.decodeResource(r, R.drawable.help);
 
 		Bitmap uiTexture = BitmapFactory.decodeResource(r, R.drawable.ui);
 		Bitmap settingsTexture = BitmapFactory.decodeResource(r, R.drawable.ui2);
