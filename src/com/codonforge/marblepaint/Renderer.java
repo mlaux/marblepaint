@@ -5,7 +5,11 @@ import java.io.InputStream;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.res.Resources;
-import android.graphics.*;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.view.SurfaceHolder;
 
 public class Renderer implements SurfaceHolder.Callback, Runnable {
@@ -23,10 +27,12 @@ public class Renderer implements SurfaceHolder.Callback, Runnable {
 	private Bitmap rgbtex;
 	private Bitmap settingstex;
 	private Bitmap helptex;
+	private Bitmap closetex;
 
 	private Marble marble;
 	private Menu colors;
 	private Menu settings;
+	private HelpMenu help;
 	
 	private Paint m_paint;
 	private int m_baseX;
@@ -95,10 +101,14 @@ public class Renderer implements SurfaceHolder.Callback, Runnable {
 			colors.render(c);
 		else if (settings.isVisible())
 			settings.render(c);
+		else if (help.isVisible()){
+			help.render(c);
+			RectTool.render(c, closetex, m_width - 64, 0, 64, 64);
+		}
 		else {
 			RectTool.render(c, rgbtex, 0, m_height - 64, 64, 64);
 			RectTool.render(c, settingstex, 64, m_height - 64, 64, 64);
-			RectTool.render(c, helptex, m_width - 32, 0, 64, 64);
+			RectTool.render(c, helptex, m_width - 64, 0, 64, 64);
 		}
 	}
 
@@ -119,6 +129,8 @@ public class Renderer implements SurfaceHolder.Callback, Runnable {
 			return colors.handleClick((int) x, (int) y);
 		else if (settings.isVisible())
 			return settings.handleClick((int) x, (int) y);
+		else if (help.isVisible())
+			return help.handleClick((int) x, (int) y);
 		else {
 			if (x > 0 && x < 64 && y > m_height - 64 && y < m_height) {
 				MarblePaint.getContext().vibrate();
@@ -128,7 +140,12 @@ public class Renderer implements SurfaceHolder.Callback, Runnable {
 				MarblePaint.getContext().vibrate();
 				settings.setVisible(true);
 				return true;
-			} else {
+			} else if (x > m_width - 64 && x < m_width && y > 0 && y < 64){
+				MarblePaint.getContext().vibrate();
+				help.setVisible(true);
+				return true;
+			}
+			else {
 				if(touch) {
 					marble.startDrag(x, y, m_width, m_height);
 				} else { 
@@ -217,6 +234,24 @@ public class Renderer implements SurfaceHolder.Callback, Runnable {
 			settings.setVisible(false);
 		}
 	}
+	class HelpMenuListener implements MenuListener {
+		public void onAction(int id) {
+			switch(id) {
+			case 15: 
+				if(help.getPage() > 0) {
+					help.prevPage();
+					MarblePaint.getContext().vibrate();
+				}
+				break;
+			case 19: 
+				if(help.getPage() < 7) { 
+					help.nextPage();
+					MarblePaint.getContext().vibrate();
+				}
+				break;
+			}
+		}
+	}
 
 	public void surfaceChanged(SurfaceHolder arg0, int form, int w, int h) {
 		m_width = w;
@@ -232,15 +267,24 @@ public class Renderer implements SurfaceHolder.Callback, Runnable {
 		rgbtex = BitmapFactory.decodeResource(r, R.drawable.rgb);
 		settingstex = BitmapFactory.decodeResource(r, R.drawable.settings);
 		helptex = BitmapFactory.decodeResource(r, R.drawable.help);
+		closetex = BitmapFactory.decodeResource(r, R.drawable.close);
 
 		Bitmap uiTexture = BitmapFactory.decodeResource(r, R.drawable.ui);
 		Bitmap settingsTexture = BitmapFactory.decodeResource(r, R.drawable.ui2);
+		Bitmap[] helpTextures = { BitmapFactory.decodeResource(r, R.drawable.help0), BitmapFactory.decodeResource(r, R.drawable.help1), 
+				BitmapFactory.decodeResource(r, R.drawable.help2), BitmapFactory.decodeResource(r, R.drawable.help3), 
+				BitmapFactory.decodeResource(r, R.drawable.help4), BitmapFactory.decodeResource(r, R.drawable.help5), 
+				BitmapFactory.decodeResource(r, R.drawable.help6), BitmapFactory.decodeResource(r, R.drawable.help7) }; 
 		
+		int mw = w - 128;
 		int mh = Math.min(384, h - 64);
 		int my = h - mh;
+		int my1 = (h - mh) / 2;
+		int mx = (w - mw) / 2;
 		
 		colors = new Menu(new ColorMenuListener(), 0, my, mh, mh, uiTexture);
 		settings = new Menu(new SettingsMenuListener(), 0, my, mh, mh, settingsTexture);
+		help = new HelpMenu(new HelpMenuListener(), mx, my1, mw, mh, w, h, helpTextures);
 		
 		m_renderThread = new Thread(this);
 		m_renderThread.start();
