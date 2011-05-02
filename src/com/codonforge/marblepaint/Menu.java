@@ -9,15 +9,15 @@ public class Menu {
 	private static final int ITEMS_PER_ROW = 4;
 	private static final int ITEMS_PER_COL = 3;
 	
+	protected Rect area;
+
+	protected int x;
+	protected int y;
+	
+	protected int width;
+	protected int height;
+	
 	private MenuListener listener;
-	
-	private int x;
-	private int y;
-	
-	private int width;
-	private int height;
-	
-	private Rect area;
 	
 	private Bitmap texture;
 	private boolean visible;
@@ -53,7 +53,6 @@ public class Menu {
 		listener.onAction((row * ITEMS_PER_ROW) + col);
 		return true;
 	}
-	
 	
 	public boolean isVisible() {
 		return visible;

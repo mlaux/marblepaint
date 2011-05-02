@@ -129,8 +129,13 @@ public class Renderer implements SurfaceHolder.Callback, Runnable {
 			return colors.handleClick((int) x, (int) y);
 		else if (settings.isVisible())
 			return settings.handleClick((int) x, (int) y);
-		else if (help.isVisible())
-			return help.handleClick((int) x, (int) y);
+		else if (help.isVisible()) {
+			if (x > m_width - 64 && x < m_width && y > 0 && y < 64) {
+				MarblePaint.getContext().vibrate();
+				help.setVisible(false);
+				return true;
+			} else return help.handleClick((int) x, (int) y);
+		}
 		else {
 			if (x > 0 && x < 64 && y > m_height - 64 && y < m_height) {
 				MarblePaint.getContext().vibrate();
@@ -140,7 +145,7 @@ public class Renderer implements SurfaceHolder.Callback, Runnable {
 				MarblePaint.getContext().vibrate();
 				settings.setVisible(true);
 				return true;
-			} else if (x > m_width - 64 && x < m_width && y > 0 && y < 64){
+			} else if (x > m_width - 64 && x < m_width && y > 0 && y < 64) {
 				MarblePaint.getContext().vibrate();
 				help.setVisible(true);
 				return true;
@@ -234,24 +239,6 @@ public class Renderer implements SurfaceHolder.Callback, Runnable {
 			settings.setVisible(false);
 		}
 	}
-	class HelpMenuListener implements MenuListener {
-		public void onAction(int id) {
-			switch(id) {
-			case 15: 
-				if(help.getPage() > 0) {
-					help.prevPage();
-					MarblePaint.getContext().vibrate();
-				}
-				break;
-			case 19: 
-				if(help.getPage() < 7) { 
-					help.nextPage();
-					MarblePaint.getContext().vibrate();
-				}
-				break;
-			}
-		}
-	}
 
 	public void surfaceChanged(SurfaceHolder arg0, int form, int w, int h) {
 		m_width = w;
@@ -284,7 +271,7 @@ public class Renderer implements SurfaceHolder.Callback, Runnable {
 		
 		colors = new Menu(new ColorMenuListener(), 0, my, mh, mh, uiTexture);
 		settings = new Menu(new SettingsMenuListener(), 0, my, mh, mh, settingsTexture);
-		help = new HelpMenu(new HelpMenuListener(), mx, my1, mw, mh, w, h, helpTextures);
+		help = new HelpMenu(mx, my1, mw, mh, helpTextures);
 		
 		m_renderThread = new Thread(this);
 		m_renderThread.start();
