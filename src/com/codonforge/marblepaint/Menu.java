@@ -3,11 +3,12 @@ package com.codonforge.marblepaint;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Rect;
+import android.util.Log;
 import android.view.View;
 
 public class Menu {
-	private static final int ITEMS_PER_ROW = 4;
-	private static final int ITEMS_PER_COL = 3;
+	private static int ITEMS_PER_ROW;
+	private static int ITEMS_PER_COL;
 	
 	protected Rect area;
 
@@ -22,6 +23,19 @@ public class Menu {
 	private Bitmap texture;
 	private boolean visible;
 	
+	public Menu(MenuListener ml, int _x, int _y, int w, int h, Bitmap tid, int ipr, int ipc) {
+		listener = ml;
+		
+		x = _x;
+		y = _y;
+		width = w;
+		height = h;
+		texture = tid;
+		ITEMS_PER_ROW = ipr;
+		ITEMS_PER_COL = ipc;
+		
+		area = new Rect(x, y, x + width, y + height);
+	}
 	public Menu(MenuListener ml, int _x, int _y, int w, int h, Bitmap tid) {
 		listener = ml;
 		

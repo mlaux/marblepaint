@@ -24,11 +24,11 @@ public class Renderer implements SurfaceHolder.Callback, Runnable {
 	private Bitmap splashtex;
 	private Bitmap logotex;
 
-	private Bitmap rgbtex;
-	private Bitmap settingstex;
+	private Bitmap menuclosedtex;
 	private Bitmap helptex;
 	private Bitmap closetex;
 
+	private Menu menu;
 	private Marble marble;
 	private Menu colors;
 	private Menu settings;
@@ -97,17 +97,16 @@ public class Renderer implements SurfaceHolder.Callback, Runnable {
 		marble.update(m_width, m_height);
 		marble.render(c);
 
-		if (colors.isVisible())
-			colors.render(c);
-		else if (settings.isVisible())
-			settings.render(c);
-		else if (help.isVisible()){
+		if (help.isVisible()){
 			help.render(c);
 			RectTool.render(c, closetex, m_width - 64, 0, 64, 64);
-		}
-		else {
-			RectTool.render(c, rgbtex, 0, m_height - 64, 64, 64);
-			RectTool.render(c, settingstex, 64, m_height - 64, 64, 64);
+		} else if (colors.isVisible()) {
+			colors.render(c);
+			RectTool.render(c, closetex, m_width - 64, 0, 64, 64);
+		} else if (menu.isVisible()) {
+			menu.render(c);
+		} else {
+			RectTool.render(c, menuclosedtex, ((m_width - (m_width - 200)) / 2), m_height - 64, m_width - 200, 64);
 			RectTool.render(c, helptex, m_width - 64, 0, 64, 64);
 		}
 	}
@@ -125,10 +124,16 @@ public class Renderer implements SurfaceHolder.Callback, Runnable {
 			return true;
 		}
 		
-		if (colors.isVisible())
-			return colors.handleClick((int) x, (int) y);
-		else if (settings.isVisible())
-			return settings.handleClick((int) x, (int) y);
+		if (menu.isVisible())
+			return menu.handleClick((int) x, (int) y);
+		else if (colors.isVisible()) {
+			if (x > m_width - 64 && x < m_width && y > 0 && y < 64) {
+				MarblePaint.getContext().vibrate();
+				help.setVisible(false);
+				return true;
+			} else
+			return colors.handleClick((int) x, (int) y); 
+		}
 		else if (help.isVisible()) {
 			if (x > m_width - 64 && x < m_width && y > 0 && y < 64) {
 				MarblePaint.getContext().vibrate();
@@ -137,13 +142,9 @@ public class Renderer implements SurfaceHolder.Callback, Runnable {
 			} else return help.handleClick((int) x, (int) y);
 		}
 		else {
-			if (x > 0 && x < 64 && y > m_height - 64 && y < m_height) {
+			if (x > 64 && x < m_width - 64 && y > m_height - 32 && y < m_height) {
 				MarblePaint.getContext().vibrate();
-				colors.setVisible(true);
-				return true;
-			} else if (x > 64 && x < 128 && y > m_height - 64 && y < m_height) {
-				MarblePaint.getContext().vibrate();
-				settings.setVisible(true);
+				menu.setVisible(true);			
 				return true;
 			} else if (x > m_width - 64 && x < m_width && y > 0 && y < 64) {
 				MarblePaint.getContext().vibrate();
@@ -184,59 +185,55 @@ public class Renderer implements SurfaceHolder.Callback, Runnable {
 	class ColorMenuListener implements MenuListener {
 		public void onAction(int id) {
 			switch (id) {
-				case 0: marble.setColor(0x00, 0x00, 0x00); colors.setVisible(false); break; // black
-				case 1: marble.setColor(0xFF, 0x00, 0x00); colors.setVisible(false); break; // red
-				case 2: marble.setColor(0x00, 0xFF, 0x00); colors.setVisible(false); break; // green
-				case 3: marble.setColor(0x00, 0x00, 0xFF); colors.setVisible(false); break; // blue
-				case 4: marble.setColor(0xFF, 0xFF, 0x00); colors.setVisible(false); break; // yellow
-				case 5: marble.setColor(0xFF, 0x7F, 0x00); colors.setVisible(false); break; // orange
-				case 6: marble.setColor(0x7F, 0x00, 0xFF); colors.setVisible(false); break; // purple
-				case 7: marble.setRainbow(true); colors.setVisible(false); break; // rainbow
-				case 8: marble.increaseSize(); break;
-				case 9: marble.decreaseSize(); break;
-				case 10: marble.clear(); colors.setVisible(false); break;
-				case 11: colors.setVisible(false);
+				case 5: marble.setColor(0xFF, 0x00, 0x00); colors.setVisible(false); break; // red
+				case 6: marble.setColor(0xFF, 0x7F, 0x00); colors.setVisible(false); break; // orange
+				case 7: marble.setColor(0xFF, 0xFF, 0x00); colors.setVisible(false); break; // yellow
+				case 8: marble.setColor(0x7F, 0xFF, 0x00); colors.setVisible(false); break; // light green
+				case 9: marble.setColor(0x00, 0xFF, 0x00); colors.setVisible(false); break; // green
+				case 10: marble.setColor(0x00, 0x00, 0xFF); colors.setVisible(false); break; // blue
+				case 11: marble.setColor(0x00, 0x7F, 0xFF); colors.setVisible(false); break; // light blue
+				case 12: marble.setColor(0x00, 0xFF, 0xFF); colors.setVisible(false); break; // sky blue/turquoise
+				case 13: marble.setColor(0xFF, 0x00, 0xFF); colors.setVisible(false); break; // pink/purple color
+				case 14: marble.setColor(0x7F, 0x00, 0xFF); colors.setVisible(false); break; // purple
+				case 15: marble.setColor(0x00, 0x00, 0x00); colors.setVisible(false); break; // black
+				case 16: marble.setColor(0x59, 0x59, 0x59); colors.setVisible(false); break; // dark gray
+				case 17: marble.setColor(0xA1, 0xA1, 0xA1); colors.setVisible(false); break; // gray
+				case 18: marble.setColor(0xE6, 0xE6, 0xE6); colors.setVisible(false); break; // light gray
+				case 19: marble.setRainbow(true); colors.setVisible(false); break; // rainbow
 			}
 		}
 	}
 	
-	class SettingsMenuListener implements MenuListener {
+	class MainMenuListener implements MenuListener {
 		String filename = "";
 		public void onAction(int id) {
 			switch(id) {
-				case 0:
-					touch = false;
-					break;
-				case 1: 
-					marble.stop();
-					touch = true;
-					break;
-				case 2: // save
-					MarblePaint.getContext().makeInput("Enter a name to save file as.", "Save as...", new OnClickListener() {
-						public void onClick(DialogInterface dialog, int which) {
-							filename = MarblePaint.getContext().getInput().getText().toString();
-							marble.save(filename);
-						}
-					});
-					break;
-				case 3: // load
-					MarblePaint.getContext().showGallery();
-					break;
-				case 4: // about
-					MarblePaint.getContext().showAbout();
-					settings.setVisible(false);
-					break;
-				case 5: // help
-					MarblePaint.getContext().showHelp();
-					break;
-				case 8: // exit
-					MarblePaint.getContext().finish();
-					break;
-				case 11: // back
-					break;
+			case 5:
+				if (touch = false) {marble.stop(); touch = true; } 
+				else touch = false;
+				break;
+			case 6: 
+				colors.setVisible(true);
+				break;
+			case 7: // save
+				MarblePaint.getContext().makeInput("Enter a name to save file as.", "Save as...", new OnClickListener() {
+					public void onClick(DialogInterface dialog, int which) {
+						filename = MarblePaint.getContext().getInput().getText().toString();
+						marble.save(filename);
+					}
+				});
+				break;
+			case 8: // load
+				MarblePaint.getContext().showGallery();
+				break;
+			case 9: // about
+				MarblePaint.getContext().showAbout();
+				settings.setVisible(false);
+				break;
+			
 			}
 
-			settings.setVisible(false);
+			menu.setVisible(false);
 		}
 	}
 
@@ -251,13 +248,12 @@ public class Renderer implements SurfaceHolder.Callback, Runnable {
 		
 		splashtex = BitmapFactory.decodeResource(r, R.drawable.splash);
 		logotex = BitmapFactory.decodeResource(r, R.drawable.codonforge);
-		rgbtex = BitmapFactory.decodeResource(r, R.drawable.rgb);
-		settingstex = BitmapFactory.decodeResource(r, R.drawable.settings);
+		menuclosedtex = BitmapFactory.decodeResource(r, R.drawable.menu_closed);
 		helptex = BitmapFactory.decodeResource(r, R.drawable.help);
 		closetex = BitmapFactory.decodeResource(r, R.drawable.close);
 
-		Bitmap uiTexture = BitmapFactory.decodeResource(r, R.drawable.ui);
-		Bitmap settingsTexture = BitmapFactory.decodeResource(r, R.drawable.ui2);
+		Bitmap menuTexture = BitmapFactory.decodeResource(r, R.drawable.menu);
+		Bitmap colorsTexture = BitmapFactory.decodeResource(r, R.drawable.colors);
 		Bitmap[] helpTextures = { BitmapFactory.decodeResource(r, R.drawable.help0), BitmapFactory.decodeResource(r, R.drawable.help1), 
 				BitmapFactory.decodeResource(r, R.drawable.help2), BitmapFactory.decodeResource(r, R.drawable.help3), 
 				BitmapFactory.decodeResource(r, R.drawable.help4), BitmapFactory.decodeResource(r, R.drawable.help5), 
@@ -265,13 +261,12 @@ public class Renderer implements SurfaceHolder.Callback, Runnable {
 		
 		int mw = w - 128;
 		int mh = Math.min(384, h - 64);
-		int my = h - mh;
-		int my1 = (h - mh) / 2;
+		int my = (h - mh) / 2;
 		int mx = (w - mw) / 2;
 		
-		colors = new Menu(new ColorMenuListener(), 0, my, mh, mh, uiTexture);
-		settings = new Menu(new SettingsMenuListener(), 0, my, mh, mh, settingsTexture);
-		help = new HelpMenu(mx, my1, mw, mh, helpTextures);
+		menu = new Menu (new MainMenuListener(), (w - (w - 200)) / 2, h - 250, w - 200, 250, menuTexture, 5, 2);
+		colors = new Menu(new ColorMenuListener(), mx, my, mw, mh, colorsTexture, 5, 4);
+		help = new HelpMenu(mx, my, mw, mh, helpTextures);
 		
 		m_renderThread = new Thread(this);
 		m_renderThread.start();
