@@ -31,7 +31,6 @@ public class Renderer implements SurfaceHolder.Callback, Runnable {
 	private Menu menu;
 	private Marble marble;
 	private Menu colors;
-	private Menu settings;
 	private HelpMenu help;
 	
 	private Paint m_paint;
@@ -97,7 +96,7 @@ public class Renderer implements SurfaceHolder.Callback, Runnable {
 		marble.update(m_width, m_height);
 		marble.render(c);
 
-		if (help.isVisible()){
+		if (help.isVisible()) {
 			help.render(c);
 			RectTool.render(c, closetex, m_width - 64, 0, 64, 64);
 		} else if (colors.isVisible()) {
@@ -129,10 +128,9 @@ public class Renderer implements SurfaceHolder.Callback, Runnable {
 		else if (colors.isVisible()) {
 			if (x > m_width - 64 && x < m_width && y > 0 && y < 64) {
 				MarblePaint.getContext().vibrate();
-				help.setVisible(false);
+				colors.setVisible(false);
 				return true;
-			} else
-			return colors.handleClick((int) x, (int) y); 
+			} else return colors.handleClick((int) x, (int) y); 
 		}
 		else if (help.isVisible()) {
 			if (x > m_width - 64 && x < m_width && y > 0 && y < 64) {
@@ -150,8 +148,7 @@ public class Renderer implements SurfaceHolder.Callback, Runnable {
 				MarblePaint.getContext().vibrate();
 				help.setVisible(true);
 				return true;
-			}
-			else {
+			} else {
 				if(touch) {
 					marble.startDrag(x, y, m_width, m_height);
 				} else { 
@@ -208,14 +205,13 @@ public class Renderer implements SurfaceHolder.Callback, Runnable {
 		String filename = "";
 		public void onAction(int id) {
 			switch(id) {
-			case 5:
-				if (touch = false) {marble.stop(); touch = true; } 
-				else touch = false;
+			case 0:
+				setTouch(!touch);
 				break;
-			case 6: 
+			case 1: 
 				colors.setVisible(true);
 				break;
-			case 7: // save
+			case 2: // save
 				MarblePaint.getContext().makeInput("Enter a name to save file as.", "Save as...", new OnClickListener() {
 					public void onClick(DialogInterface dialog, int which) {
 						filename = MarblePaint.getContext().getInput().getText().toString();
@@ -223,12 +219,11 @@ public class Renderer implements SurfaceHolder.Callback, Runnable {
 					}
 				});
 				break;
-			case 8: // load
+			case 3: // load
 				MarblePaint.getContext().showGallery();
 				break;
-			case 9: // about
+			case 4: // about
 				MarblePaint.getContext().showAbout();
-				settings.setVisible(false);
 				break;
 			
 			}
@@ -264,8 +259,8 @@ public class Renderer implements SurfaceHolder.Callback, Runnable {
 		int my = (h - mh) / 2;
 		int mx = (w - mw) / 2;
 		
-		menu = new Menu (new MainMenuListener(), (w - (w - 200)) / 2, h - 250, w - 200, 250, menuTexture, 5, 2);
-		colors = new Menu(new ColorMenuListener(), mx, my, mw, mh, colorsTexture, 5, 4);
+		menu = new Menu (new MainMenuListener(), (w - (w - 200)) / 2, h - 250, w - 200, 250, 5, 1, menuTexture);
+		colors = new Menu(new ColorMenuListener(), mx, my, mw, mh, 5, 4, colorsTexture);
 		help = new HelpMenu(mx, my, mw, mh, helpTextures);
 		
 		m_renderThread = new Thread(this);
