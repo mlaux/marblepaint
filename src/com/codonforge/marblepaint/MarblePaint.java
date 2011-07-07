@@ -33,7 +33,7 @@ import com.google.ads.AdRequest;
 import com.google.ads.AdView;
 
 public class MarblePaint extends Activity implements SensorEventListener {
-	public static final String VERSION = "2.0";
+	public static final String VERSION = "2.1";
 	
 	private static MarblePaint context;
 
@@ -44,7 +44,7 @@ public class MarblePaint extends Activity implements SensorEventListener {
 	private Sensor accelerometer;
 	
 	private	AlertDialog about;
-	private	AlertDialog help;
+	private	AlertDialog saveload;
 	
 	private EditText input;
 	
@@ -83,15 +83,12 @@ public class MarblePaint extends Activity implements SensorEventListener {
 		aboutMessage.setText(a);
 		aboutMessage.setMovementMethod(LinkMovementMethod.getInstance());
 		
-		String h = "Tilt your phone to move the marble.\n" +
-				"Tap the wrench for settings.\n" +
-				"Tap the three marbles for marble options.\n" +
-				"Choose the touch option to drag the marble.";
+		String h = "Save your creation or\n" + "load an image to paint on!";
 		helpMessage.setText(h);
 
 		about = makeDialog(aboutMessage, "About MarblePaint (v" + VERSION + ")");
 		
-		help = makeDialog(helpMessage, "Help");
+		saveload = makeSaveLoad(helpMessage, "Save/Load");
 	}
 	
 	private AlertDialog makeDialog(View text, String title) {
@@ -101,6 +98,28 @@ public class MarblePaint extends Activity implements SensorEventListener {
 		builder.setNeutralButton("OK", new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int which) {
 				
+			}
+		});
+		return builder.create();
+	}
+	
+	private AlertDialog makeSaveLoad(View text, String title) {
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setTitle(title);
+		builder.setView(text);
+		builder.setPositiveButton("Save", new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int which) {
+				makeInput("Enter a name to save file as.", "Save as...", new OnClickListener() {
+					public void onClick(DialogInterface dialog, int which) {
+						String filename = MarblePaint.getContext().getInput().getText().toString();
+						Renderer.save(filename);
+					}
+				});
+			}
+		});
+		builder.setNegativeButton("Load", new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int which) {
+				showGallery();
 			}
 		});
 		return builder.create();
@@ -186,8 +205,8 @@ public class MarblePaint extends Activity implements SensorEventListener {
 	public void showAbout() {
 		about.show();
 	}
-	public void showHelp() {
-		help.show();
+	public void showSaveLoad() {
+		saveload.show();
 	}
 	
 	public EditText getInput() {

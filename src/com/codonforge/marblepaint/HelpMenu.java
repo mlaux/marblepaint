@@ -33,7 +33,7 @@ public class HelpMenu extends Menu {
 		if (x > this.x + this.width - 80 && x < this.x + this.width
 				&& y > this.y + this.height - 80 && y < this.y + this.height) {
 			MarblePaint.getContext().vibrate();
-			if(pageNum < 7) {
+			if(pageNum < 8) {
 				nextPage();
 				return true;
 			}
