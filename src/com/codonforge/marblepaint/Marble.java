@@ -73,8 +73,8 @@ public class Marble {
 
 	public void accelerate(float x, float y) {
 		if(!makeTrail) return;
-		xAccel += x * .6f * 1.5f - .5;
-		yAccel += y * .6f * 1.5f - .5;
+		xAccel += x * .7f - .5;
+		yAccel += y * .7f - .5;
 		// NEW PHYSICS :D
 	}
 

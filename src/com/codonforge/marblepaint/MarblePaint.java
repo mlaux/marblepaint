@@ -77,7 +77,8 @@ public class MarblePaint extends Activity implements SensorEventListener {
 		final SpannableString a = new SpannableString("Created by Codonforge\n" +
 				"Programming by Matt Laux\n" +
 				"Art and Physics by Jeff Bell\n" +
-				"http://www.codonforge.com");
+				"http://www.codonforge.com\n" + 
+				"http://www.facebook.com/codonforge");
 		Linkify.addLinks(a, Linkify.WEB_URLS);
 		aboutMessage.setText(a);
 		aboutMessage.setMovementMethod(LinkMovementMethod.getInstance());
