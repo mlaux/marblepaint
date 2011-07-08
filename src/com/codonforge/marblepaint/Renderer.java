@@ -11,6 +11,10 @@ import android.graphics.Paint;
 import android.view.SurfaceHolder;
 
 public class Renderer implements SurfaceHolder.Callback, Runnable {
+	private final static int MAX_FPS = 50;
+	private final static int MAX_FRAME_SKIPS = 5;
+	private final static int FRAME_PERIOD = 1000 / MAX_FPS;
+	
 	private SurfaceHolder m_surfaceHolder;
 	private Thread m_renderThread;
 	
@@ -46,27 +50,60 @@ public class Renderer implements SurfaceHolder.Callback, Runnable {
 	
 	public void run() {
 		running = true;
-		while(running) {
-			Canvas c = null;
+		Canvas canvas;
+
+		long beginTime; // the time when the cycle begun
+		long timeDiff; // the time it took for the cycle to execute
+		int sleepTime; // ms to sleep (<0 if we're behind)
+		int framesSkipped; // number of frames being skipped
+
+		sleepTime = 0;
+
+		while (running) {
+			canvas = null;
+			// try locking the canvas for exclusive pixel editing
+			// in the surface
 			try {
-				c = m_surfaceHolder.lockCanvas();
+				canvas = m_surfaceHolder.lockCanvas();
 				synchronized (m_surfaceHolder) {
-					if(c != null) {
-						render(c);
+					beginTime = System.currentTimeMillis();
+					framesSkipped = 0; // resetting the frames skipped
+					// update game state
+					update();
+					// render state to the screen
+					// draws the canvas on the panel
+					render(canvas);
+					// calculate how long did the cycle take
+					timeDiff = System.currentTimeMillis() - beginTime;
+					// calculate sleep time
+					sleepTime = (int) (FRAME_PERIOD - timeDiff);
+
+					if (sleepTime > 0) {
+						try {
+							Thread.sleep(sleepTime);
+						} catch (Exception e) {
+							
+						}
+					}
+
+					while (sleepTime < 0 && framesSkipped < MAX_FRAME_SKIPS) {
+						update();
+						// add frame period to check if in next frame
+						sleepTime += FRAME_PERIOD;
+						framesSkipped++;
 					}
 				}
 			} finally {
-				if (c != null) {
-					m_surfaceHolder.unlockCanvasAndPost(c);
+				if (canvas != null) {
+					m_surfaceHolder.unlockCanvasAndPost(canvas);
 				}
 			}
-
-			try {
-				Thread.sleep(10);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+		}
+	}
+	
+	private void update() {
+		if(!splash) {
+			marble.update(m_width, m_height);
 		}
 	}
 	
@@ -91,8 +128,7 @@ public class Renderer implements SurfaceHolder.Callback, Runnable {
 			RectTool.render(c, logotex, m_width - 150, m_height - 25, 150, 25);
 			return;
 		}
-
-		marble.update(m_width, m_height);
+		
 		marble.render(c);
 
 		if (help.isVisible()) {

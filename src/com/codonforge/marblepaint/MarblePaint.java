@@ -214,7 +214,8 @@ public class MarblePaint extends Activity implements SensorEventListener {
 	}
 	
 	public void showGallery() {
-		startActivityForResult(new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI), 0xCAFE);
+		startActivityForResult(new Intent(Intent.ACTION_PICK, 
+				android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI), 0xCAFE);
 	}
 
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
